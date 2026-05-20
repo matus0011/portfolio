@@ -1,15 +1,20 @@
 <script lang="ts">
   import MagneticDots from "./MagneticDots.svelte";
+  import MenuOverlay from "./MenuOverlay.svelte";
+  import { t, type Lang } from "../locales";
 
-  const navLeft = [
-    { label: "+1", href: "#" },
-    { label: "Projekty", href: "#" },
-  ];
-  const navRight = [
-    { label: "O mnie", href: "#" },
-    { label: "Umiejętności", href: "#" },
-    { label: "Kontakt", href: "#" },
-  ];
+  let { initialLang = "pl" as Lang } = $props();
+
+  let menuOpen = $state(false);
+  const lang = $derived(initialLang as Lang);
+  const tr = $derived(t(lang));
+
+  const navLeft = $derived([{ label: "+1", href: "#" }]);
+  const navRight = $derived([
+    { label: tr.nav.projects, href: "#" },
+    { label: tr.nav.about, href: "#" },
+    { label: tr.nav.contact, href: "#" },
+  ]);
 </script>
 
 <section class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col">
@@ -32,7 +37,7 @@
         </li>
       {/each}
       <li>
-        <MagneticDots />
+        <MagneticDots onclick={() => (menuOpen = true)} />
       </li>
     </ul>
   </nav>
@@ -42,11 +47,10 @@
 
     <!-- LEFT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
-      <!-- Middle: collection meta + pagination, vertically centered -->
       <div>
         <div class="space-y-1">
           <div class="label">
-            First Collection <span class="text-mute">//</span> 19.8.19
+            {tr.meta.collection} <span class="text-mute">//</span> {tr.meta.date}
           </div>
         </div>
 
@@ -60,12 +64,12 @@
         </div>
       </div>
 
-      <!-- LinkedIn link — pinned to bottom of column -->
+      <!-- LinkedIn link -->
       <a
         href="#"
         class="absolute bottom-0 left-0 label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
       >
-        LinkedIn
+        {tr.labels.linkedin}
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M7 7h10v10" />
           <path d="m7 17 10-10" />
@@ -95,7 +99,7 @@
 
     <!-- RIGHT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
-      <!-- Top: 3 vertical text columns + 1st element = vertical line matching the longest -->
+      <!-- Vertical text -->
       <div class="absolute top-0 right-0 flex gap-1 label !text-base font-bold leading-tight items-stretch">
         <span class="block w-0.5 self-stretch bg-ink"></span>
         <span class="[writing-mode:vertical-rl]">Creation 2019</span>
@@ -105,38 +109,33 @@
 
       <!-- Middle: section -->
       <div>
-        <div class="label mb-4">X/Labs</div>
+        <div class="label mb-4">{tr.meta.studio}</div>
         <div class="grid grid-cols-2 gap-4 max-w-xs ml-auto">
-          <p class="label text-mute leading-relaxed">
-            For automotation of x/labs unisex, summer collection and protection. Deep unisex.
-          </p>
-          <p class="label text-mute leading-relaxed">
-            For automotation of x/labs unisex, sp/summer collection a.
-          </p>
+          <p class="label text-mute leading-relaxed">{tr.meta.description1}</p>
+          <p class="label text-mute leading-relaxed">{tr.meta.description2}</p>
         </div>
 
         <!-- Arrow navigation -->
         <div class="mt-8 flex items-center gap-3 justify-end">
-          <button aria-label="Previous" class="text-accent hover:opacity-70 transition-opacity">
+          <button aria-label={tr.labels.previous} class="text-accent hover:opacity-70 transition-opacity">
             <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
               <path d="M1 5H21M1 5L5 1M1 5L5 9" stroke="currentColor" stroke-width="1.2" />
             </svg>
           </button>
-          <button aria-label="Next" class="text-accent hover:opacity-70 transition-opacity">
+          <button aria-label={tr.labels.next} class="text-accent hover:opacity-70 transition-opacity">
             <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
               <path d="M21 5H1M21 5L17 1M21 5L17 9" stroke="currentColor" stroke-width="1.2" />
             </svg>
           </button>
         </div>
       </div>
-
     </div>
 
   </div>
 
-  <!-- Down arrow — pinned to right edge of viewport -->
+  <!-- Down arrow -->
   <button
-    aria-label="Scroll"
+    aria-label={tr.labels.scroll}
     class="group absolute right-0 bottom-0 w-[50px] h-[100px] bg-accent text-bg flex items-center justify-center overflow-hidden hover:bg-ink transition-colors duration-300"
   >
     <svg
@@ -156,3 +155,6 @@
     </svg>
   </button>
 </section>
+
+<!-- MENU OVERLAY (osobny komponent) -->
+<MenuOverlay lang={lang} bind:menuOpen />

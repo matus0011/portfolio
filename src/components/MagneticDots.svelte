@@ -22,15 +22,16 @@
    *     (0 = no movement, 1 = the dot tries to meet the cursor).
    */
   let container: HTMLButtonElement | undefined = $state();
+  let { onclick } = $props();
   let offsets = $state([
     { x: 0, y: 0 },
     { x: 0, y: 0 },
     { x: 0, y: 0 },
   ]);
 
-  const RADIUS = 30;
+  const RADIUS = 50;
   const STRENGTH = 0.6;
-
+ 
   function handleMove(e: MouseEvent) {
     if (!container) return;
     const dots = container.querySelectorAll<HTMLSpanElement>("span");
@@ -53,7 +54,8 @@
 
 <button
   bind:this={container}
-  class="label hover:text-accent transition-colors flex items-center gap-1 cursor-pointer"
+  {onclick}
+  class="label hover:text-accent transition-colors flex items-center gap-1 cursor-pointer p-8 -m-8"
   aria-label="More"
 >
   {#each offsets as off}

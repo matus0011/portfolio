@@ -7,6 +7,10 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   integrations: [svelte(), icon()],
+  i18n: {
+    defaultLocale: 'pl',
+    locales: ['pl', 'en'],
+  },
   devToolbar: {
     enabled: false,
   },
