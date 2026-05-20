@@ -9,7 +9,6 @@
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-condensed: "Bricolage Grotesque Condensed", "Bricolage Grotesque", sans-serif;
 }
 
 @layer base {
@@ -39,12 +38,4 @@
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-/* Bricolage Grotesque Condensed — use Tailwind class `font-condensed`.
- * Variable font: applies the condensed width axis (75%). */
-.font-condensed {
-  font-family: var(--font-condensed);
-  font-variation-settings: "wdth" 75;
-  font-stretch: 75%;
 }

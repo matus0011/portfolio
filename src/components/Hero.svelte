@@ -1,4 +1,6 @@
 <script lang="ts">
+  import MagneticDots from "./MagneticDots.svelte";
+
   const navLeft = [
     { label: "+1", href: "#" },
     { label: "Projekty", href: "#" },
@@ -30,11 +32,7 @@
         </li>
       {/each}
       <li>
-        <button class="label hover:text-accent transition-colors flex items-center gap-1" aria-label="More">
-          <span class="w-1 h-1 rounded-full bg-current"></span>
-          <span class="w-1 h-1 rounded-full bg-current"></span>
-          <span class="w-1 h-1 rounded-full bg-current"></span>
-        </button>
+        <MagneticDots />
       </li>
     </ul>
   </nav>
