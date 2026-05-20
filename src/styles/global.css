@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #E0E0E0;
+  --color-ink: #010101;
+  --color-mute: #8A8A8A;
+  --color-accent: #FE5030;
+  --color-line: #C9C9C9;
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-condensed: "Bricolage Grotesque Condensed", "Bricolage Grotesque", sans-serif;
+}
+
+@layer base {
+  html, body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Bricolage Grotesque Condensed — use Tailwind class `font-condensed`.
+ * Variable font: applies the condensed width axis (75%). */
+.font-condensed {
+  font-family: var(--font-condensed);
+  font-variation-settings: "wdth" 75;
+  font-stretch: 75%;
+}
