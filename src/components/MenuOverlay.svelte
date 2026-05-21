@@ -58,9 +58,9 @@
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          stroke-width="2.5"
+          stroke-linecap="square"
+          stroke-linejoin="miter"
         >
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -96,7 +96,8 @@
             href={item.href}
             onclick={() => (menuOpen = false)}
             onmouseenter={(e) => handleLinkMouseEnter(i, e.currentTarget as HTMLElement)}
-            class="inline-block text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tight hover:text-accent transition-colors duration-300 py-0 leading-none"
+            class="inline-block text-6xl sm:text-8xl md:text-9xl font-black uppercase tracking-tight hover:text-accent transition-colors duration-300 py-0 leading-none"
+            style="font-family: var(--font-display)"
           >
             {item.label}
           </a>
@@ -106,17 +107,17 @@
 
     <!-- BOTTOM: language switcher -->
     <div class="flex justify-between items-center w-full pt-6">
-      <div class="flex items-center gap-3 text-xl md:text-2xl uppercase font-mono">
+      <div class="flex items-center gap-1 text-sm md:text-base uppercase font-mono font-black" style="font-family: var(--font-display)">
         <a
           href="/"
-          class="hover:text-accent transition-colors cursor-pointer {lang === 'pl' ? 'text-accent font-bold' : 'text-mute'}"
+          class="hover:text-accent transition-colors cursor-pointer {lang === 'pl' ? 'text-accent' : 'text-foreground font-black'}"
         >
           PL
         </a>
-        <span class="text-mute/30">/</span>
+        <span class="text-foreground">/</span>
         <a
           href="/en"
-          class="hover:text-accent transition-colors cursor-pointer {lang === 'en' ? 'text-accent font-bold' : 'text-mute'}"
+          class="hover:text-accent transition-colors cursor-pointer {lang === 'en' ? 'text-accent' : 'text-foreground font-black'}"
         >
           EN
         </a>
