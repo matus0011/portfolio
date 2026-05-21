@@ -20,4 +20,13 @@ export const en = {
     previous: "Previous",
     next: "Next",
   },
+  hero: {
+    prefix: "Web",
+    roles: ["Creative", "Full Stack", "Frontend", "Mobile"] as const,
+    roleLabel: "Developer",
+    availableLabel: "Available",
+    statuses: ["Full Time", "Freelance", "Remote", "Contract"] as const,
+    location: "Warsaw, PL",
+    timezone: "CET",
+  },
 } as const;

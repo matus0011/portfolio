@@ -1,49 +1,71 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import gsap from "gsap";
+  import { t, type Lang } from "../locales";
 
-  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@&%";
+  let { lang = "pl" as Lang } = $props();
+  const tr = $derived(t(lang));
 
-  const roles    = ["Creative", "Full Stack", "Frontend", "Mobile"];
-  const statuses = ["Full Time", "Freelance", "Remote", "Contract"];
+  const CHARS      = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@&%";
+  const DIGIT_CHARS = "0123456789";
+
+  const roles    = $derived([...tr.hero.roles]);
+  const statuses = $derived([...tr.hero.statuses]);
 
   let roleEl:   HTMLSpanElement;
   let statusEl: HTMLSpanElement;
+  let timeEl:   HTMLSpanElement;
+
   let roleIdx   = 0;
   let statusIdx = 0;
+  let cursor    = $state(true);
 
-  /* generacja — anuluje poprzednią animację gdy nowa się zaczyna */
-  let roleGen   = 0;
-  let statusGen = 0;
+  const rGen = { v: 0 };
+  const sGen = { v: 0 };
+  const tGen = { v: 0 };
 
-  function scrambleTo(el: HTMLSpanElement, text: string, genRef: { v: number }) {
+  function getTime() {
+    return new Date().toLocaleTimeString("pl-PL", {
+      timeZone: "Europe/Warsaw",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  /* skipChars — znaki które nie są animowane (np. ":" w czasie) */
+  function scrambleTo(
+    el: HTMLSpanElement,
+    text: string,
+    genRef: { v: number },
+    charset = CHARS,
+    skipChars = " ",
+  ) {
     const myGen = ++genRef.v;
-    const upper = text.toUpperCase();
 
-    /* wyczyść i zbuduj spany dla każdej litery */
     el.innerHTML = "";
-    const spans = [...upper].map((char) => {
+    const spans = [...text].map((char) => {
       const s = document.createElement("span");
       s.style.display = "inline-block";
-      s.style.minWidth = char === " " ? "0.3em" : "";
-      s.textContent = char === " " ? " " : CHARS[Math.floor(Math.random() * CHARS.length)];
+      const skip = skipChars.includes(char);
+      s.textContent = skip
+        ? char
+        : charset[Math.floor(Math.random() * charset.length)];
       el.appendChild(s);
-      return { el: s, final: char === " " ? " " : char };
+      return { el: s, final: char, skip };
     });
 
-    spans.forEach(({ el: span, final }, i) => {
-      if (final === " ") return; /* spacja — nie animuj */
+    spans.forEach(({ el: span, final, skip }, i) => {
+      if (skip) return;
 
-      const delay       = i * 0.045;
-      const iterations  = 6 + i;          /* więcej iteracji dla późniejszych liter */
-      const frameTime   = 0.055;
-
+      const delay      = i * 0.045;
+      const iterations = 5 + i;
+      const frameTime  = 0.055;
       let count = 0;
 
       const tick = () => {
-        if (genRef.v !== myGen) return;  /* anulowane */
+        if (genRef.v !== myGen) return;
         if (count < iterations) {
-          span.textContent = CHARS[Math.floor(Math.random() * CHARS.length)];
+          span.textContent = charset[Math.floor(Math.random() * charset.length)];
           count++;
           gsap.delayedCall(frameTime, tick);
         } else {
@@ -56,33 +78,63 @@
   }
 
   onMount(() => {
-    const rGen = { v: 0 };
-    const sGen = { v: 0 };
-
     scrambleTo(roleEl,   roles[0],    rGen);
     scrambleTo(statusEl, statuses[0], sGen);
 
-    const interval = setInterval(() => {
+    /* inicjalizacja zegara */
+    let lastTime = getTime();
+    scrambleTo(timeEl, lastTime, tGen, DIGIT_CHARS, ": ");
+
+    /* rotacja słów co 3s */
+    const wordInterval = setInterval(() => {
       roleIdx   = (roleIdx   + 1) % roles.length;
       statusIdx = (statusIdx + 1) % statuses.length;
-      scrambleTo(roleEl,   roles[roleIdx],    rGen);
+      scrambleTo(roleEl,   roles[roleIdx],      rGen);
       scrambleTo(statusEl, statuses[statusIdx], sGen);
     }, 3000);
 
-    return () => clearInterval(interval);
+    /* migający kursor */
+    const cursorInterval = setInterval(() => {
+      cursor = !cursor;
+    }, 530);
+
+    /* zegar — scramble tylko gdy minuta się zmienia */
+    const clockInterval = setInterval(() => {
+      const now = getTime();
+      if (now !== lastTime) {
+        lastTime = now;
+        scrambleTo(timeEl, now, tGen, DIGIT_CHARS, ": ");
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(wordInterval);
+      clearInterval(cursorInterval);
+      clearInterval(clockInterval);
+    };
   });
 </script>
 
-<div class="space-y-0.5">
-  <div class="label">Web</div>
+<div class="space-y-0.5" style="font-family: var(--font-display)">
+
+  <div class="label">{tr.hero.prefix}</div>
 
   <div class="label flex items-center gap-1.5">
-    <span>Developer</span>
+    <span>{tr.hero.roleLabel}</span>
     <span bind:this={roleEl} class="text-accent font-mono tracking-wide"></span>
+    <span class="text-accent font-mono" style="opacity: {cursor ? 1 : 0}">_</span>
   </div>
 
   <div class="label flex items-center gap-1.5">
-    <span>Available</span>
+    <span>{tr.hero.availableLabel}</span>
     <span bind:this={statusEl} class="font-mono tracking-wide"></span>
   </div>
+
+  <div class="label text-mute flex items-center gap-1.5 pt-0.5">
+    <span>{tr.hero.location}</span>
+    <span class="text-mute/40">·</span>
+    <span bind:this={timeEl} class="font-mono"></span>
+    <span class="text-mute/40">{tr.hero.timezone}</span>
+  </div>
+
 </div>
