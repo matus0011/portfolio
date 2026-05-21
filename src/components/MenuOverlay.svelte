@@ -11,6 +11,7 @@
   const tr = $derived(t(lang));
 
   const menuItems = $derived([
+    { label: tr.nav.home, href: "/" },
     { label: tr.nav.projects, href: "#" },
     { label: tr.nav.about, href: "#" },
     { label: tr.nav.contact, href: "#" },
@@ -19,26 +20,41 @@
   let hoveredIndex = $state(0);
   let indicatorY = $state(0);
   let navEl = $state<HTMLElement | null>(null);
+  let markerLeft = $state(0);
+  let markerRight = $state(0);
 
-  const gens = [{ v: 0 }, { v: 0 }, { v: 0 }];
+  const gens = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
+
+  function getViewportY(el: HTMLElement) {
+    const r = el.getBoundingClientRect();
+    return r.top + r.height / 2;
+  }
+
+  function updateNavBounds() {
+    if (!navEl) return;
+    const r = navEl.getBoundingClientRect();
+    markerLeft = r.left - 72;
+    markerRight = window.innerWidth - r.right - 72;
+  }
 
   function handleLinkMouseEnter(i: number, el: HTMLElement) {
     hoveredIndex = i;
-    indicatorY = el.offsetTop + el.offsetHeight / 2;
+    indicatorY = getViewportY(el);
     scrambleTo(el, menuItems[i].label, gens[i], undefined, undefined, 2);
   }
 
   function handleNavMouseLeave() {
     hoveredIndex = 0;
     const first = navEl?.querySelector("a") as HTMLElement | null;
-    if (first) indicatorY = first.offsetTop + first.offsetHeight / 2;
+    if (first) indicatorY = getViewportY(first);
   }
 
   $effect(() => {
     if (menuOpen) {
       requestAnimationFrame(() => {
         const first = navEl?.querySelector("a") as HTMLElement | null;
-        if (first) indicatorY = first.offsetTop + first.offsetHeight / 2;
+        if (first) indicatorY = getViewportY(first);
+        updateNavBounds();
       });
     }
   });
@@ -81,16 +97,16 @@
       >
         <!-- Left marker -->
         <span
-          class="Menu-nav--marker __left absolute select-none pointer-events-none transition-[top] duration-300 ease-out -translate-y-1/2 text-accent"
-          style="top: {indicatorY}px;"
+          class="Menu-nav--marker __left fixed select-none pointer-events-none text-accent"
+          style="top: {indicatorY}px; left: {markerLeft}px; transform: translateY(-50%);"
         >
           &#123;
         </span>
 
         <!-- Right marker -->
         <span
-          class="Menu-nav--marker __right absolute select-none pointer-events-none transition-[top] duration-300 ease-out -translate-y-1/2 text-accent"
-          style="top: {indicatorY}px;"
+          class="Menu-nav--marker __right fixed select-none pointer-events-none text-accent"
+          style="top: {indicatorY}px; right: {markerRight}px; transform: translateY(-50%);"
         >
           &#125;
         </span>
@@ -140,17 +156,9 @@
     letter-spacing: -2px;
     font-stretch: condensed;
     white-space: nowrap;
+    transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .Menu-nav--marker.__left {
-    right: calc(100% + 52px);
-    left: auto;
-  }
-
-  .Menu-nav--marker.__right {
-    left: calc(100% + 52px);
-    right: auto;
-  }
 
   @media (max-width: 768px) {
     .Menu-nav--marker {

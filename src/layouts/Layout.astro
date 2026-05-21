@@ -23,6 +23,15 @@ const { title = "Portfolio" } = Astro.props;
     />
 
     <title>{title}</title>
+
+    <!-- Google Analytics 4 — zastąp G-XXXXXXXXXX swoim Measurement ID -->
+    <script type="text/partytown" src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script type="text/partytown">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
   </head>
   <body>
     <CustomCursor client:load />

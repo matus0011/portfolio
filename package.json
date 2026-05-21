@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/partytown": "^2.1.7",
     "@astrojs/svelte": "^8.1.1",
     "@iconify-json/lucide": "^1.2.108",
     "astro": "^6.3.6",

@@ -1,5 +1,6 @@
 export const pl = {
   nav: {
+    home: "Home",
     projects: "Projekty",
     about: "O mnie",
     contact: "Kontakt",
