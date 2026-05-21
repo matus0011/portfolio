@@ -64,6 +64,7 @@
   }
 
   onMount(() => {
+    document.body.style.overflow = "hidden";
     generateGrid();
 
     const lastReal = ["0", "0", "0"];
@@ -212,10 +213,18 @@
               autoAlpha: 0,
               duration: 0.5,
               ease: "power2.out",
-              onComplete: () => (hidden = true),
+              onComplete: () => {
+                hidden = true;
+                document.body.style.overflow = "";
+              },
             });
           }
-          setTimeout(() => (hidden = true), 1200);
+          (window as any).loaderDone = true;
+          window.dispatchEvent(new CustomEvent("loaderFinished"));
+          setTimeout(() => {
+            hidden = true;
+            document.body.style.overflow = "";
+          }, 1200);
         }
       }
     }, 16);
@@ -226,6 +235,7 @@
       clearInterval(scramble);
       ro.disconnect();
       window.removeEventListener("load", onLoad);
+      document.body.style.overflow = "";
     };
   });
 </script>

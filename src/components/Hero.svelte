@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { animate } from "motion";
   import MagneticDots from "./MagneticDots.svelte";
   import MenuOverlay from "./MenuOverlay.svelte";
   import HeroTitle from "./HeroTitle.svelte";
@@ -23,11 +25,56 @@
   let linkedinTextEl: HTMLSpanElement;
   let navTextEls: HTMLSpanElement[] = [];
 
+  function initIntro() {
+    // Usuń klasę invisible z elementów, by ujawnić je przed animacją opacity
+    const elements = document.querySelectorAll(".hero-center, .hero-nav, .hero-left, .hero-mouse-info, .hero-arrow");
+    elements.forEach(el => el.classList.remove("invisible"));
+
+    animate([
+      [
+        ".hero-center", 
+        { scale: [1.06, 1], opacity: [0, 1] }, 
+        { duration: 1.6, ease: "easeOut" }
+      ],
+      [
+        ".hero-nav", 
+        { y: [-20, 0], opacity: [0, 1] }, 
+        { duration: 1.2, ease: "easeOut", at: "-1.2" }
+      ],
+      [
+        ".hero-left", 
+        { y: [25, 0], opacity: [0, 1] }, 
+        { duration: 1.2, ease: "easeOut", at: "-1.0" }
+      ],
+      [
+        ".hero-mouse-info", 
+        { y: [25, 0], opacity: [0, 1] }, 
+        { duration: 1.2, ease: "easeOut", at: "-0.85" }
+      ],
+      [
+        ".hero-arrow", 
+        { y: [40, 0], opacity: [0, 1] }, 
+        { duration: 0.8, ease: "easeOut", at: "-0.8" }
+      ]
+    ]);
+  }
+
+  onMount(() => {
+    if ((window as any).loaderDone) {
+      initIntro();
+    } else {
+      window.addEventListener("loaderFinished", initIntro, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("loaderFinished", initIntro);
+    };
+  });
 </script>
 
 <section class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col">
   <!-- TOP NAV -->
-  <nav class="flex items-center justify-between">
+  <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
     <!-- LOGOTYPE -->
     <a href="/" class="font-black tracking-tight hover:text-accent transition-colors" style="font-family: var(--font-display); font-size: 1.15rem;">
       LOGOTYPE
@@ -55,7 +102,7 @@
   <div class="flex-1 grid grid-cols-12 gap-6 mt-8 md:mt-12">
 
     <!-- LEFT COLUMN -->
-    <div class="col-span-3 relative flex flex-col justify-center">
+    <div class="hero-left opacity-0 invisible col-span-3 relative flex flex-col justify-center">
       <div>
         <HeroTitle {lang} />
 
@@ -77,7 +124,7 @@
     </div>
 
     <!-- CENTER — PLACEHOLDER IMAGE -->
-    <div class="col-span-6 flex items-center justify-center">
+    <div class="hero-center opacity-0 invisible col-span-6 flex items-center justify-center">
       <div class="relative w-full h-full max-h-[78vh] flex items-center justify-center">
         <div
           class="w-full h-full rounded-sm relative overflow-hidden"
@@ -103,10 +150,9 @@
 
   </div>
 
-  <!-- Down arrow -->
   <button
     aria-label={tr.labels.scroll}
-    class="group absolute right-0 bottom-0 w-[50px] h-[100px] bg-accent text-bg flex items-center justify-center overflow-hidden hover:bg-ink transition-colors duration-300"
+    class="hero-arrow opacity-0 invisible group absolute right-0 bottom-0 w-[50px] h-[100px] bg-accent text-bg flex items-center justify-center overflow-hidden hover:bg-ink transition-colors duration-300"
   >
     <svg
       width="14"

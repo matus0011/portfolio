@@ -37,7 +37,10 @@
 
   let timezone = $state(getTimezone());
 
-  onMount(() => {
+  const intervals: any[] = [];
+
+  function initAnimations() {
+    if (!roleEl || !statusEl || !timeEl) return;
     scrambleTo(roleEl,   roles[0],    rGen);
     scrambleTo(statusEl, statuses[0], sGen);
 
@@ -53,11 +56,6 @@
       scrambleTo(statusEl, statuses[statusIdx], sGen);
     }, 3000);
 
-    /* migający kursor */
-    const cursorInterval = setInterval(() => {
-      cursor = !cursor;
-    }, 530);
-
     /* zegar — scramble tylko gdy minuta się zmienia */
     const clockInterval = setInterval(() => {
       const now = getTime();
@@ -67,10 +65,25 @@
       }
     }, 1000);
 
+    intervals.push(wordInterval, clockInterval);
+  }
+
+  onMount(() => {
+    /* migający kursor */
+    const cursorInterval = setInterval(() => {
+      cursor = !cursor;
+    }, 530);
+    intervals.push(cursorInterval);
+
+    if ((window as any).loaderDone) {
+      initAnimations();
+    } else {
+      window.addEventListener("loaderFinished", initAnimations, { once: true });
+    }
+
     return () => {
-      clearInterval(wordInterval);
-      clearInterval(cursorInterval);
-      clearInterval(clockInterval);
+      intervals.forEach(clearInterval);
+      window.removeEventListener("loaderFinished", initAnimations);
     };
   });
 </script>

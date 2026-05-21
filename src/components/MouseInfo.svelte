@@ -35,7 +35,7 @@
   });
 </script>
 
-<div class="fixed right-[10px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-ink/60 z-50 py-10 px-0">
+<div class="hero-mouse-info opacity-0 invisible fixed right-[10px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-ink/60 z-50 py-10 px-0">
   <span class="[writing-mode:vertical-rl] pb-4 ">
     <span bind:this={xEl}>{pad(mouseX)}</span> x <span bind:this={yEl}>{pad(mouseY)}</span>
   </span>
