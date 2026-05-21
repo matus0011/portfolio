@@ -16,6 +16,7 @@
     { label: tr.nav.about, href: "#" },
     { label: tr.nav.contact, href: "#" },
   ]);
+
 </script>
 
 <section class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col">
@@ -49,7 +50,7 @@
     <!-- LEFT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
       <div>
-        <HeroTitle />
+        <HeroTitle {lang} />
 
 
       </div>
@@ -89,36 +90,6 @@
 
     <!-- RIGHT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
-      <!-- Vertical text -->
-      <div class="absolute top-0 right-0 flex gap-1 label !text-base font-bold leading-tight items-stretch">
-        <span class="block w-0.5 self-stretch bg-ink"></span>
-        <span class="[writing-mode:vertical-rl]">Creation 2019</span>
-        <span class="[writing-mode:vertical-rl]">Materials of</span>
-        <span class="[writing-mode:vertical-rl]">X-Labs</span>
-      </div>
-
-      <!-- Middle: section -->
-      <div>
-        <div class="label mb-4">{tr.meta.studio}</div>
-        <div class="grid grid-cols-2 gap-4 max-w-xs ml-auto">
-          <p class="label text-mute leading-relaxed">{tr.meta.description1}</p>
-          <p class="label text-mute leading-relaxed">{tr.meta.description2}</p>
-        </div>
-
-        <!-- Arrow navigation -->
-        <div class="mt-8 flex items-center gap-3 justify-end">
-          <button aria-label={tr.labels.previous} class="text-accent hover:opacity-70 transition-opacity">
-            <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
-              <path d="M1 5H21M1 5L5 1M1 5L5 9" stroke="currentColor" stroke-width="1.2" />
-            </svg>
-          </button>
-          <button aria-label={tr.labels.next} class="text-accent hover:opacity-70 transition-opacity">
-            <svg width="22" height="10" viewBox="0 0 22 10" fill="none">
-              <path d="M21 5H1M21 5L17 1M21 5L17 9" stroke="currentColor" stroke-width="1.2" />
-            </svg>
-          </button>
-        </div>
-      </div>
     </div>
 
   </div>
