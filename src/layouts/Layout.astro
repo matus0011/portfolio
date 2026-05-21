@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import CustomCursor from "../components/CustomCursor.svelte";
 
 interface Props {
   title?: string;
@@ -24,6 +25,7 @@ const { title = "Portfolio" } = Astro.props;
     <title>{title}</title>
   </head>
   <body>
+    <CustomCursor client:load />
     <slot />
   </body>
 </html>

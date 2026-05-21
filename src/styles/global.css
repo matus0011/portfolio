@@ -18,6 +18,11 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    cursor: none;
+  }
+
+  * {
+    cursor: none !important;
   }
 
   body {
