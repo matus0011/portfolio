@@ -3,6 +3,7 @@
   import MenuOverlay from "./MenuOverlay.svelte";
   import HeroTitle from "./HeroTitle.svelte";
   import { t, type Lang } from "../locales";
+  import { scrambleTo } from "../utils/scramble";
 
   let { initialLang = "pl" as Lang } = $props();
 
@@ -16,6 +17,11 @@
     { label: tr.nav.about, href: "#" },
     { label: tr.nav.contact, href: "#" },
   ]);
+
+  const navGens = [{ v: 0 }, { v: 0 }, { v: 0 }];
+  const linkedinGen = { v: 0 };
+  let linkedinTextEl: HTMLSpanElement;
+  let navTextEls: HTMLSpanElement[] = [];
 
 </script>
 
@@ -31,10 +37,14 @@
     </ul>
 
     <ul class="flex items-center gap-10">
-      {#each navRight as item}
+      {#each navRight as item, i (item.label)}
         <li>
-          <a href={item.href} class="label hover:text-accent transition-colors inline-flex items-center gap-1.5">
-            {item.label}
+          <a
+            href={item.href}
+            class="label hover:text-accent transition-colors inline-flex items-center gap-1.5"
+            onmouseenter={() => scrambleTo(navTextEls[i], item.label, navGens[i], undefined, undefined, 2)}
+          >
+            <span bind:this={navTextEls[i]}>{item.label}</span>
           </a>
         </li>
       {/each}
@@ -59,8 +69,9 @@
       <a
         href="#"
         class="absolute bottom-0 left-0 label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+        onmouseenter={() => scrambleTo(linkedinTextEl, tr.labels.linkedin, linkedinGen, undefined, undefined, 2)}
       >
-        {tr.labels.linkedin}
+        <span bind:this={linkedinTextEl}>{tr.labels.linkedin}</span>
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M7 7h10v10" />
           <path d="m7 17 10-10" />

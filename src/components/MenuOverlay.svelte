@@ -1,6 +1,7 @@
 <script lang="ts">
   import { fade } from "svelte/transition";
   import { t, type Lang } from "../locales";
+  import { scrambleTo } from "../utils/scramble";
 
   let {
     lang = "pl" as Lang,
@@ -19,9 +20,12 @@
   let indicatorY = $state(0);
   let navEl = $state<HTMLElement | null>(null);
 
+  const gens = [{ v: 0 }, { v: 0 }, { v: 0 }];
+
   function handleLinkMouseEnter(i: number, el: HTMLElement) {
     hoveredIndex = i;
     indicatorY = el.offsetTop + el.offsetHeight / 2;
+    scrambleTo(el, menuItems[i].label, gens[i], undefined, undefined, 2);
   }
 
   function handleNavMouseLeave() {
@@ -91,7 +95,7 @@
           &lt;
         </span>
 
-        {#each menuItems as item, i}
+        {#each menuItems as item, i (item.label)}
           <a
             href={item.href}
             onclick={() => (menuOpen = false)}

@@ -9,13 +9,13 @@ export function scrambleTo(
   genRef: { v: number },
   charset = CHARS,
   skipChars = " ",
+  speed = 1,
 ) {
   const myGen = ++genRef.v;
 
   el.innerHTML = "";
   const spans = [...text].map((char) => {
     const s = document.createElement("span");
-    s.style.display = "inline-block";
     const skip = skipChars.includes(char);
     s.textContent = skip
       ? char
@@ -27,9 +27,9 @@ export function scrambleTo(
   spans.forEach(({ el: span, final, skip }, i) => {
     if (skip) return;
 
-    const delay      = i * 0.045;
-    const iterations = 5 + i;
-    const frameTime  = 0.055;
+    const delay      = (i * 0.045) / speed;
+    const iterations = Math.max(2, Math.round((5 + i) / speed));
+    const frameTime  = 0.055 / speed;
     let count = 0;
 
     const tick = () => {
