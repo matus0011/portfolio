@@ -2,6 +2,7 @@
   import MagneticDots from "./MagneticDots.svelte";
   import MenuOverlay from "./MenuOverlay.svelte";
   import HeroTitle from "./HeroTitle.svelte";
+  import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo } from "../utils/scramble";
 
@@ -11,7 +12,6 @@
   const lang = $derived(initialLang as Lang);
   const tr = $derived(t(lang));
 
-  const navLeft = $derived([{ label: "+1", href: "#" }]);
   const navRight = $derived([
     { label: tr.nav.projects, href: "#" },
     { label: tr.nav.about, href: "#" },
@@ -28,13 +28,10 @@
 <section class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col">
   <!-- TOP NAV -->
   <nav class="flex items-center justify-between">
-    <ul class="flex items-center gap-10">
-      {#each navLeft as item}
-        <li>
-          <a href={item.href} class="label hover:text-accent transition-colors">{item.label}</a>
-        </li>
-      {/each}
-    </ul>
+    <!-- LOGOTYPE -->
+    <a href="/" class="font-black tracking-tight hover:text-accent transition-colors" style="font-family: var(--font-display); font-size: 1.15rem;">
+      LOGOTYPE
+    </a>
 
     <ul class="flex items-center gap-10">
       {#each navRight as item, i (item.label)}
@@ -101,6 +98,7 @@
 
     <!-- RIGHT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
+      <MouseInfo />
     </div>
 
   </div>

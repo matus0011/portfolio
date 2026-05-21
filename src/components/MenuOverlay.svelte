@@ -84,7 +84,7 @@
           class="Menu-nav--marker __left absolute select-none pointer-events-none transition-[top] duration-300 ease-out -translate-y-1/2 text-accent"
           style="top: {indicatorY}px;"
         >
-          &gt;
+          &#123;
         </span>
 
         <!-- Right marker -->
@@ -92,7 +92,7 @@
           class="Menu-nav--marker __right absolute select-none pointer-events-none transition-[top] duration-300 ease-out -translate-y-1/2 text-accent"
           style="top: {indicatorY}px;"
         >
-          &lt;
+          &#125;
         </span>
 
         {#each menuItems as item, i (item.label)}
@@ -139,6 +139,7 @@
     line-height: 0.75;
     letter-spacing: -2px;
     font-stretch: condensed;
+    white-space: nowrap;
   }
 
   .Menu-nav--marker.__left {
