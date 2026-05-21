@@ -1,6 +1,7 @@
 <script lang="ts">
   import MagneticDots from "./MagneticDots.svelte";
   import MenuOverlay from "./MenuOverlay.svelte";
+  import HeroTitle from "./HeroTitle.svelte";
   import { t, type Lang } from "../locales";
 
   let { initialLang = "pl" as Lang } = $props();
@@ -48,11 +49,7 @@
     <!-- LEFT COLUMN -->
     <div class="col-span-3 relative flex flex-col justify-center">
       <div>
-        <div class="space-y-1">
-          <div class="label">
-            {tr.meta.collection} <span class="text-mute">//</span> {tr.meta.date}
-          </div>
-        </div>
+        <HeroTitle />
 
 
       </div>
