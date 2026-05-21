@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import CustomCursor from "../components/CustomCursor.svelte";
+import Loader from "../components/Loader.svelte";
 
 interface Props {
   title?: string;
@@ -34,6 +35,7 @@ const { title = "Portfolio" } = Astro.props;
     </script>
   </head>
   <body>
+    <Loader client:load minDuration={10000} />
     <CustomCursor client:load />
     <slot />
   </body>
