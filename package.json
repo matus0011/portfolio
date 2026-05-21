@@ -16,7 +16,10 @@
     "@iconify-json/lucide": "^1.2.108",
     "astro": "^6.3.6",
     "astro-icon": "^1.1.5",
-    "svelte": "^5.55.9"
+    "gsap": "^3.15.0",
+    "motion": "^12.39.0",
+    "svelte": "^5.55.9",
+    "three": "^0.184.0"
   },
   "devDependencies": {
     "@astrojs/cloudflare": "^13.5.3",
