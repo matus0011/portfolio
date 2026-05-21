@@ -15,7 +15,6 @@ export const en = {
     roleLabel: "Developer",
     availableLabel: "Available",
     statuses: ["Full Time", "Freelance", "Remote", "Contract"] as const,
-    location: "Warsaw, PL",
-    timezone: "CET",
+    location: "Poland",
   },
 } as const;

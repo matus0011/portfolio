@@ -29,6 +29,14 @@
     });
   }
 
+  function getTimezone() {
+    return Intl.DateTimeFormat("en", { timeZone: "Europe/Warsaw", timeZoneName: "short" })
+      .formatToParts(new Date())
+      .find((p) => p.type === "timeZoneName")?.value ?? "CET";
+  }
+
+  let timezone = $state(getTimezone());
+
   onMount(() => {
     scrambleTo(roleEl,   roles[0],    rGen);
     scrambleTo(statusEl, statuses[0], sGen);
@@ -86,7 +94,7 @@
     <span>{tr.hero.location}</span>
     <span class="text-mute/40">·</span>
     <span bind:this={timeEl} class="font-mono"></span>
-    <span class="text-mute/40">{tr.hero.timezone}</span>
+    <span class="text-mute/40">{timezone}</span>
   </div>
 
 </div>
