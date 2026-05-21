@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import gsap from "gsap";
+  import { CHARS } from "../utils/scramble";
 
   let {
     freeze = false,
@@ -8,100 +10,221 @@
   }: { freeze?: boolean; freezeAt?: number; minDuration?: number } = $props();
 
   let progress = $state(freeze ? freezeAt : 0);
-  let done = $state(false);
+  let displayed = $state("000");
   let hidden = $state(false);
+
+  let canvasEl: HTMLCanvasElement | undefined = $state();
+  let loaderEl: HTMLDivElement | undefined = $state();
+
+  const SCRAMBLE_INTERVAL_MS = 65;
+  const GLITCH_RATE = 0.22;
+  const POST_CHANGE_SCRAMBLE_MS = 220;
 
   const ROWS = 9;
   const COLS = 36;
   const ROW_ACTIVE_CHANCE = 0.7;
   const CELL_FILL_CHANCE = 0.55;
+  const SHUFFLE_INTERVAL_MS = 130;
   const SHUFFLE_RATE = 0.12;
-
   const SYMBOLS = ["X", "O", "W", "✳", ">", "⌖", "✕", "◯", "+", "·", "*", "✺", "△", "▷"];
 
   type Cell = string | null;
 
-  let grid = $state<Cell[][]>([]);
-  let activeRows = $state<boolean[]>([]);
+  const activeRows: boolean[] = [];
+  const grid: Cell[][] = [];
 
   function pickSymbol() {
     return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
   }
 
   function generateGrid() {
-    const rows: boolean[] = Array.from({ length: ROWS }, () => Math.random() < ROW_ACTIVE_CHANCE);
-    while (rows.filter(Boolean).length < 4) {
-      rows[Math.floor(Math.random() * ROWS)] = true;
+    activeRows.length = 0;
+    for (let r = 0; r < ROWS; r++) activeRows.push(Math.random() < ROW_ACTIVE_CHANCE);
+    while (activeRows.filter(Boolean).length < 4) {
+      activeRows[Math.floor(Math.random() * ROWS)] = true;
     }
-    activeRows = rows;
-    grid = rows.map((active) =>
-      active
-        ? Array.from({ length: COLS }, () => (Math.random() < CELL_FILL_CHANCE ? pickSymbol() : null))
-        : Array<Cell>(COLS).fill(null),
-    );
+    grid.length = 0;
+    for (let r = 0; r < ROWS; r++) {
+      const row: Cell[] = [];
+      for (let c = 0; c < COLS; c++) {
+        row.push(activeRows[r] && Math.random() < CELL_FILL_CHANCE ? pickSymbol() : null);
+      }
+      grid.push(row);
+    }
   }
 
   function shuffleSymbols() {
-    grid = grid.map((row, r) =>
-      activeRows[r]
-        ? row.map((cell) => (cell != null && Math.random() < SHUFFLE_RATE ? pickSymbol() : cell))
-        : row,
-    );
+    for (let r = 0; r < ROWS; r++) {
+      if (!activeRows[r]) continue;
+      const row = grid[r];
+      for (let c = 0; c < COLS; c++) {
+        if (row[c] != null && Math.random() < SHUFFLE_RATE) row[c] = pickSymbol();
+      }
+    }
   }
-
-  const visibleCols = $derived(Math.max(0, Math.ceil((COLS * progress) / 100)));
 
   onMount(() => {
     generateGrid();
 
-    const shuffle = setInterval(shuffleSymbols, 130);
-    const reroll = setInterval(generateGrid, 4000);
+    const lastReal = ["0", "0", "0"];
+    const scrambleUntil = [0, 0, 0];
+
+    const scramble = setInterval(() => {
+      const now = performance.now();
+      const real = Math.round(progress).toString().padStart(3, "0");
+      let out = "";
+      for (let i = 0; i < 3; i++) {
+        if (real[i] !== lastReal[i]) {
+          scrambleUntil[i] = now + POST_CHANGE_SCRAMBLE_MS;
+          lastReal[i] = real[i];
+        }
+        const glitching = now < scrambleUntil[i] || Math.random() < GLITCH_RATE;
+        out += glitching ? CHARS[Math.floor(Math.random() * CHARS.length)] : real[i];
+      }
+      displayed = out;
+    }, SCRAMBLE_INTERVAL_MS);
+
+    const canvas = canvasEl!;
+    const ctx = canvas.getContext("2d")!;
+    const dpr = window.devicePixelRatio || 1;
+
+    let cssW = 0;
+    let cssH = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      cssW = rect.width;
+      cssH = rect.height;
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const INK = "#010101";
+    const WHITE = "#ffffff";
+
+    function draw() {
+      const cellW = cssW / COLS;
+      const cellH = cssH / ROWS;
+      const visibleCols = Math.max(0, Math.ceil((COLS * progress) / 100));
+
+      ctx.clearRect(0, 0, cssW, cssH);
+
+      ctx.fillStyle = INK;
+      for (let r = 0; r < ROWS; r++) {
+        if (!activeRows[r]) continue;
+        const row = grid[r];
+        for (let c = 0; c < visibleCols; c++) {
+          if (row[c] != null) ctx.fillRect(c * cellW, r * cellH, cellW + 0.5, cellH + 0.5);
+        }
+      }
+
+      ctx.fillStyle = WHITE;
+      const fontSize = Math.min(cellH * 0.55, cellW * 0.6);
+      ctx.font = `500 ${fontSize}px "JetBrains Mono", ui-monospace, monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let r = 0; r < ROWS; r++) {
+        if (!activeRows[r]) continue;
+        const row = grid[r];
+        for (let c = 0; c < visibleCols; c++) {
+          const s = row[c];
+          if (s != null) ctx.fillText(s, c * cellW + cellW / 2, r * cellH + cellH / 2);
+        }
+      }
+    }
+
+    let rafId = 0;
+    let lastShuffle = performance.now();
+
+    function loop() {
+      const now = performance.now();
+      if (now - lastShuffle >= SHUFFLE_INTERVAL_MS) {
+        shuffleSymbols();
+        lastShuffle = now;
+      }
+      draw();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    rafId = requestAnimationFrame(loop);
+
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => draw());
+    }
 
     if (freeze) {
       return () => {
-        clearInterval(shuffle);
-        clearInterval(reroll);
+        cancelAnimationFrame(rafId);
+        clearInterval(scramble);
+        ro.disconnect();
       };
     }
 
     let loaded = false;
     const onLoad = () => (loaded = true);
-
-    if (document.readyState === "complete") {
-      loaded = true;
-    } else {
-      window.addEventListener("load", onLoad, { once: true });
-    }
+    if (document.readyState === "complete") loaded = true;
+    else window.addEventListener("load", onLoad, { once: true });
 
     const startedAt = performance.now();
+    let phase: "slow" | "snap" | "done" = "slow";
+    let snapStart = 0;
+    let snapFrom = 0;
+    const slowTarget = minDuration > 0 ? 92 : 88;
 
-    const interval = setInterval(() => {
-      const elapsed = performance.now() - startedAt;
-      const minDone = elapsed >= minDuration;
-      const ready = loaded && minDone;
+    const driver = setInterval(() => {
+      const n = performance.now();
 
-      if (ready) {
-        progress = Math.min(100, progress + (100 - progress) * 0.12 + 0.6);
-      } else if (minDuration > 0 && !minDone) {
-        const timeTarget = Math.min(92, (elapsed / minDuration) * 92);
-        progress = Math.max(progress, Math.min(timeTarget, progress + (timeTarget - progress) * 0.08 + 0.1));
-      } else {
-        const target = 88;
-        progress = Math.min(target, progress + (target - progress) * 0.025 + 0.15);
+      if (phase === "slow") {
+        const elapsed = n - startedAt;
+        const minDone = minDuration === 0 || elapsed >= minDuration;
+
+        if (loaded && minDone) {
+          phase = "snap";
+          snapStart = n;
+          snapFrom = progress;
+          return;
+        }
+
+        if (minDuration > 0) {
+          const target = Math.min(slowTarget, (elapsed / minDuration) * slowTarget);
+          progress = Math.max(progress, target);
+        } else {
+          progress = Math.min(slowTarget, progress + (slowTarget - progress) * 0.025 + 0.15);
+        }
+        return;
       }
 
-      if (progress >= 99.5) {
-        progress = 100;
-        done = true;
-        clearInterval(interval);
-        setTimeout(() => (hidden = true), 600);
+      if (phase === "snap") {
+        const t = Math.min(1, (n - snapStart) / 600);
+        const eased = 1 - Math.pow(1 - t, 2);
+        progress = snapFrom + (100 - snapFrom) * eased;
+        if (t >= 1) {
+          progress = 100;
+          phase = "done";
+          clearInterval(driver);
+          if (loaderEl) {
+            gsap.to(loaderEl, {
+              autoAlpha: 0,
+              duration: 0.5,
+              ease: "power2.out",
+              onComplete: () => (hidden = true),
+            });
+          }
+          setTimeout(() => (hidden = true), 1200);
+        }
       }
     }, 16);
 
     return () => {
-      clearInterval(interval);
-      clearInterval(shuffle);
-      clearInterval(reroll);
+      cancelAnimationFrame(rafId);
+      clearInterval(driver);
+      clearInterval(scramble);
+      ro.disconnect();
       window.removeEventListener("load", onLoad);
     };
   });
@@ -109,79 +232,65 @@
 
 {#if !hidden}
   <div
-    class="fixed inset-0 z-[100] flex items-center justify-center bg-bg transition-opacity duration-500 ease-out"
-    class:opacity-0={done}
-    class:pointer-events-none={done}
-    aria-hidden={done}
+    bind:this={loaderEl}
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-bg"
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
     aria-valuenow={Math.round(progress)}
   >
-    <div class="board relative">
-      <div class="grid">
-        {#each grid as row, r}
-          {#each row as cell, c (`${r}-${c}`)}
-            <div class="cell">
-              {#if c < visibleCols && cell != null}
-                <span class="tile">{cell}</span>
-              {/if}
-            </div>
-          {/each}
-        {/each}
+    <div class="stack">
+      <div class="board">
+        <canvas bind:this={canvasEl} class="board-canvas"></canvas>
       </div>
 
       <div class="percent">
-        <span class="tabular-nums">
-          {Math.round(progress).toString().padStart(3, "0")}%
-        </span>
+        <span class="digits tabular-nums">{displayed}</span><span class="sign">%</span>
       </div>
     </div>
   </div>
 {/if}
 
 <style>
+  .stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
   .board {
     width: min(720px, 85vw);
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(36, minmax(0, 1fr));
-    grid-template-rows: repeat(9, minmax(0, 1fr));
     aspect-ratio: 36 / 9;
-    gap: 2px;
   }
 
-  .cell {
-    position: relative;
-  }
-
-  .tile {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-ink);
-    color: #fff;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    line-height: 1;
+  .board-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .percent {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding: 0.4rem 0.7rem;
-    background: var(--color-ink);
-    color: var(--color-bg);
+    display: inline-flex;
+    align-items: baseline;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--color-ink);
+    background: var(--color-bg);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    z-index: 2;
-    pointer-events: none;
+    color: var(--color-accent);
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    line-height: 1;
+  }
+
+  .digits {
+    display: inline-block;
+    min-width: 3ch;
+    text-align: right;
+  }
+
+  .sign {
+    margin-left: 0.25rem;
+    opacity: 0.85;
   }
 </style>
