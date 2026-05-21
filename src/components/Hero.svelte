@@ -54,14 +54,7 @@
           </div>
         </div>
 
-        <!-- Pagination dots -->
-        <div class="mt-10 flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-ink/20"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-ink/20"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-ink/20"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-ink/20"></span>
-        </div>
+
       </div>
 
       <!-- LinkedIn link -->
