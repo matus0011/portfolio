@@ -35,10 +35,11 @@
   });
 </script>
 
-<div class="fixed right-[10px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-ink/60 z-50">
-  <span class="[writing-mode:vertical-rl]">
-    <span bind:this={xEl}>{pad(mouseX)}</span> X <span bind:this={yEl}>{pad(mouseY)}</span> Y
+<div class="fixed right-[10px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 font-mono text-[11px] font-bold tracking-widest text-ink/60 z-50 py-10 px-0">
+  <span class="[writing-mode:vertical-rl] pb-4 ">
+    <span bind:this={xEl}>{pad(mouseX)}</span> x <span bind:this={yEl}>{pad(mouseY)}</span>
   </span>
-  <Copyright size={12} strokeWidth={2} />
+
+  <Copyright size={12} strokeWidth={2} class="rotate-90" />
   <span class="[writing-mode:vertical-rl]">{new Date().getFullYear()}</span>
 </div>
