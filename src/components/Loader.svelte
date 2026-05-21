@@ -26,7 +26,7 @@
   const CELL_FILL_CHANCE = 0.55;
   const SHUFFLE_INTERVAL_MS = 130;
   const SHUFFLE_RATE = 0.12;
-  const SYMBOLS = ["X", "O", "W", "✳", ">", "⌖", "✕", "◯", "+", "·", "*", "✺", "△", "▷"];
+  const SYMBOLS = ["{", "}", "[", "]", "(", ")", "=>", "&&", "||", "!", "?", "=", ";", "+", "-", "*", "/", "<", ">", "$", "_", "fn"];
 
   type Cell = string | null;
 
@@ -260,8 +260,8 @@
 
   .board {
     position: relative;
-    height: 80px;
-    max-width: 85vw;
+    width: 85vw;
+    max-width: 600px;
     aspect-ratio: 36 / 6;
   }
 
@@ -281,10 +281,19 @@
     font-family: var(--font-mono);
     font-weight: 700;
     color: var(--color-accent);
-    font-size: 1.5rem;
-    letter-spacing: 0.1em;
+    font-size: 11vw;
+    letter-spacing: -0.02em;
     line-height: 1;
     pointer-events: none;
+  }
+
+  @media (min-width: 768px) {
+    .board {
+      width: 600px;
+    }
+    .percent {
+      font-size: 5.5rem;
+    }
   }
 
   .digits {
