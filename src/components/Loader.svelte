@@ -20,7 +20,7 @@
   const GLITCH_RATE = 0.22;
   const POST_CHANGE_SCRAMBLE_MS = 220;
 
-  const ROWS = 9;
+  const ROWS = 6;
   const COLS = 36;
   const ROW_ACTIVE_CHANCE = 0.7;
   const CELL_FILL_CHANCE = 0.55;
@@ -40,7 +40,7 @@
   function generateGrid() {
     activeRows.length = 0;
     for (let r = 0; r < ROWS; r++) activeRows.push(Math.random() < ROW_ACTIVE_CHANCE);
-    while (activeRows.filter(Boolean).length < 4) {
+    while (activeRows.filter(Boolean).length < Math.min(4, ROWS)) {
       activeRows[Math.floor(Math.random() * ROWS)] = true;
     }
     grid.length = 0;
@@ -242,10 +242,9 @@
     <div class="stack">
       <div class="board">
         <canvas bind:this={canvasEl} class="board-canvas"></canvas>
-      </div>
-
-      <div class="percent">
-        <span class="digits tabular-nums">{displayed}</span><span class="sign">%</span>
+        <div class="percent">
+          <span class="digits tabular-nums">{displayed}</span><span class="sign">%</span>
+        </div>
       </div>
     </div>
   </div>
@@ -260,8 +259,10 @@
   }
 
   .board {
-    width: min(720px, 85vw);
-    aspect-ratio: 36 / 9;
+    position: relative;
+    height: 80px;
+    max-width: 85vw;
+    aspect-ratio: 36 / 6;
   }
 
   .board-canvas {
@@ -271,16 +272,19 @@
   }
 
   .percent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: inline-flex;
     align-items: baseline;
-    padding: 0.55rem 0.9rem;
-    border: 1px solid var(--color-ink);
-    background: var(--color-bg);
     font-family: var(--font-mono);
+    font-weight: 700;
     color: var(--color-accent);
-    font-size: 1rem;
+    font-size: 1.5rem;
     letter-spacing: 0.1em;
     line-height: 1;
+    pointer-events: none;
   }
 
   .digits {
