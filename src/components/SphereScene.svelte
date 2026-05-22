@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import * as THREE from "three";
-  import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
   import CustomShaderMaterial from "three-custom-shader-material/vanilla";
   import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
   import { GUI } from "lil-gui";
@@ -13,7 +12,7 @@
   onMount(() => {
     // ── Sizes ────────────────────────────────────────────────────────
     const sizes = {
-      width:  canvasEl.parentElement?.clientWidth  ?? window.innerWidth,
+      width: canvasEl.parentElement?.clientWidth ?? window.innerWidth,
       height: canvasEl.parentElement?.clientHeight ?? window.innerHeight,
     };
 
@@ -33,24 +32,39 @@
     const scene = new THREE.Scene();
 
     // ── Camera ───────────────────────────────────────────────────────
-    const camera = new THREE.PerspectiveCamera(35, sizes.width / sizes.height, 0.1, 100);
-    camera.position.set(0, 0, 5);
+    const camera = new THREE.PerspectiveCamera(
+      35,
+      sizes.width / sizes.height,
+      0.1,
+      100,
+    );
     scene.add(camera);
 
-    // ── Controls ─────────────────────────────────────────────────────
-    const controls = new OrbitControls(camera, canvasEl);
-    controls.enableDamping = true;
+    const baseZ = 5.4;
+    const updateCameraDistance = () => {
+      const aspect = sizes.width / sizes.height;
+      if (aspect < 1) {
+        camera.position.z = baseZ / aspect;
+      } else {
+        camera.position.z = baseZ;
+      }
+    };
+    updateCameraDistance();
 
     // ── Lights ───────────────────────────────────────────────────────
-    const ambientLight = new THREE.AmbientLight("#ffffff", 1);
+    const ambientLight = new THREE.AmbientLight("#ffffff", 0.25);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight("#ffffff", 3);
-    dirLight.position.set(1, 2, 3);
+    const dirLight = new THREE.DirectionalLight("#ffffff", 3.5);
+    dirLight.position.set(2, 3, 4);
     scene.add(dirLight);
 
+    const rimLight = new THREE.DirectionalLight("#ffffff", 1.5);
+    rimLight.position.set(-2, -1, -3);
+    scene.add(rimLight);
+
     // ── Geometry ─────────────────────────────────────────────────────
-    let geometry = new THREE.IcosahedronGeometry(2.5, 50);
+    let geometry = new THREE.IcosahedronGeometry(1.4, 50);
     geometry = mergeVertices(geometry);
     geometry.computeTangents();
 
@@ -58,56 +72,71 @@
     const gui = new GUI({ width: 325 });
 
     const debugObject = {
-      colorA: "#0000ff",
-      colorB: "#ff0000",
+      colorA: "#010101", // Match page primary text/ink
+      colorB: "#FE5030", // Match page vibrant orange-red accent
     };
 
     const uniforms = {
-      uTime:                  new THREE.Uniform(0),
-      uPositionFrequency:     new THREE.Uniform(0.5),
-      uTimeFrequency:         new THREE.Uniform(0.4),
-      uStrength:              new THREE.Uniform(0.3),
+      uTime: new THREE.Uniform(0),
+      uPositionFrequency: new THREE.Uniform(0.5),
+      uTimeFrequency: new THREE.Uniform(0.15),
+      uStrength: new THREE.Uniform(0.22),
       uWarpPositionFrequency: new THREE.Uniform(0.38),
-      uWarpTimeFrequency:     new THREE.Uniform(0.12),
-      uWarpStrength:          new THREE.Uniform(1.7),
-      uColorA:                new THREE.Uniform(new THREE.Color(debugObject.colorA)),
-      uColorB:                new THREE.Uniform(new THREE.Color(debugObject.colorB)),
+      uWarpTimeFrequency: new THREE.Uniform(0.12),
+      uWarpStrength: new THREE.Uniform(1.7),
+      uColorA: new THREE.Uniform(new THREE.Color(debugObject.colorA)),
+      uColorB: new THREE.Uniform(new THREE.Color(debugObject.colorB)),
     };
 
-    gui.add(uniforms.uPositionFrequency, "value", 0, 2, 0.001).name("uPositionFrequency");
-    gui.add(uniforms.uTimeFrequency, "value", 0, 2, 0.001).name("uTimeFrequency");
+    gui
+      .add(uniforms.uPositionFrequency, "value", 0, 2, 0.001)
+      .name("uPositionFrequency");
+    gui
+      .add(uniforms.uTimeFrequency, "value", 0, 2, 0.001)
+      .name("uTimeFrequency");
     gui.add(uniforms.uStrength, "value", 0, 2, 0.001).name("uStrength");
-    gui.add(uniforms.uWarpPositionFrequency, "value", 0, 2, 0.001).name("uWarpPositionFrequency");
-    gui.add(uniforms.uWarpTimeFrequency, "value", 0, 2, 0.001).name("uWarpTimeFrequency");
+    gui
+      .add(uniforms.uWarpPositionFrequency, "value", 0, 2, 0.001)
+      .name("uWarpPositionFrequency");
+    gui
+      .add(uniforms.uWarpTimeFrequency, "value", 0, 2, 0.001)
+      .name("uWarpTimeFrequency");
     gui.add(uniforms.uWarpStrength, "value", 0, 2, 0.001).name("uWarpStrength");
-    gui.addColor(debugObject, "colorA").onChange(() => uniforms.uColorA.value.set(debugObject.colorA));
-    gui.addColor(debugObject, "colorB").onChange(() => uniforms.uColorB.value.set(debugObject.colorB));
+    gui
+      .addColor(debugObject, "colorA")
+      .onChange(() => uniforms.uColorA.value.set(debugObject.colorA));
+    gui
+      .addColor(debugObject, "colorB")
+      .onChange(() => uniforms.uColorB.value.set(debugObject.colorB));
+
+    // Collapse gui by default for cleaner aesthetic
+    gui.close();
 
     // ── Material (CSM) ───────────────────────────────────────────────
     // Material
     const material = new CustomShaderMaterial({
       // CSM
-      baseMaterial:   THREE.MeshPhysicalMaterial,
-      vertexShader:   wobbleVertexShader,
+      baseMaterial: THREE.MeshPhysicalMaterial,
+      vertexShader: wobbleVertexShader,
       fragmentShader: wobbleFragmentShader,
-      uniforms:       uniforms,
+      uniforms: uniforms,
 
       // MeshPhysicalMaterial
-      metalness:    0,
-      roughness:    0.5,
-      color:        "#ffffff",
+      metalness: 0,
+      roughness: 0.5,
+      color: "#ffffff",
       transmission: 0,
-      ior:          1.5,
-      thickness:    1.5,
-      transparent:  true,
-      wireframe:    false,
+      ior: 1.5,
+      thickness: 1.5,
+      transparent: true,
+      wireframe: false,
     });
 
     const depthMaterial = new CustomShaderMaterial({
       // CSM
       baseMaterial: THREE.MeshDepthMaterial,
       vertexShader: wobbleVertexShader,
-      uniforms:     uniforms,
+      uniforms: uniforms,
 
       // MeshDepthMaterial
       depthPacking: THREE.RGBADepthPacking,
@@ -120,10 +149,11 @@
 
     // ── Resize ───────────────────────────────────────────────────────
     const onResize = () => {
-      sizes.width  = canvasEl.parentElement?.clientWidth  ?? window.innerWidth;
+      sizes.width = canvasEl.parentElement?.clientWidth ?? window.innerWidth;
       sizes.height = canvasEl.parentElement?.clientHeight ?? window.innerHeight;
 
       camera.aspect = sizes.width / sizes.height;
+      updateCameraDistance();
       camera.updateProjectionMatrix();
 
       renderer.setSize(sizes.width, sizes.height);
@@ -138,10 +168,12 @@
     const tick = () => {
       const elapsed = clock.getElapsedTime();
 
+      // Rotate mesh automatically
+      mesh.rotation.y = elapsed * 0.08;
+
       // Materials
       uniforms.uTime.value = elapsed;
 
-      controls.update();
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
@@ -151,7 +183,6 @@
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
-      controls.dispose();
       geometry.dispose();
       material.dispose();
       depthMaterial.dispose();

@@ -26,39 +26,89 @@
   let linkedinTextEl: HTMLSpanElement;
   let navTextEls: HTMLSpanElement[] = [];
 
+  let overlayTitleLine1El: HTMLSpanElement;
+  let overlayTitleLine2El: HTMLSpanElement;
+  let overlayTitleLine3El: HTMLSpanElement;
+  let overlayTaglineEl: HTMLSpanElement;
+  const overlayTitleLine1Gen = { v: 0 };
+  const overlayTitleLine2Gen = { v: 0 };
+  const overlayTitleLine3Gen = { v: 0 };
+  const overlayTaglineGen = { v: 0 };
+
   function initIntro() {
     // Usuń klasę invisible z elementów, by ujawnić je przed animacją opacity
-    const elements = document.querySelectorAll(".hero-center, .hero-nav, .hero-left, .hero-mouse-info, .hero-arrow");
-    elements.forEach(el => el.classList.remove("invisible"));
+    const elements = document.querySelectorAll(
+      ".hero-center, .hero-nav, .hero-left, .hero-mouse-info, .hero-arrow",
+    );
+    elements.forEach((el) => el.classList.remove("invisible"));
 
     animate([
       [
-        ".hero-center", 
-        { scale: [1.06, 1], opacity: [0, 1] }, 
-        { duration: 1.6, ease: "easeOut" }
+        ".hero-center",
+        { scale: [1.06, 1], opacity: [0, 1] },
+        { duration: 1.6, ease: "easeOut" },
       ],
       [
-        ".hero-nav", 
-        { y: [-20, 0], opacity: [0, 1] }, 
-        { duration: 1.2, ease: "easeOut", at: "-1.2" }
+        ".hero-nav",
+        { y: [-20, 0], opacity: [0, 1] },
+        { duration: 1.2, ease: "easeOut", at: "-1.2" },
       ],
       [
-        ".hero-left", 
-        { y: [25, 0], opacity: [0, 1] }, 
-        { duration: 1.2, ease: "easeOut", at: "-1.0" }
+        ".hero-left",
+        { y: [25, 0], opacity: [0, 1] },
+        { duration: 1.2, ease: "easeOut", at: "-1.0" },
       ],
       [
-        ".hero-mouse-info", 
-        { y: [25, 0], opacity: [0, 1] }, 
-        { duration: 1.2, ease: "easeOut", at: "-0.85" }
+        ".hero-mouse-info",
+        { y: [25, 0], opacity: [0, 1] },
+        { duration: 1.2, ease: "easeOut", at: "-0.85" },
       ],
       [
-        ".hero-arrow", 
-        { y: [40, 0], opacity: [0, 1] }, 
-        { duration: 0.8, ease: "easeOut", at: "-0.8" }
-      ]
+        ".hero-arrow",
+        { y: [40, 0], opacity: [0, 1] },
+        { duration: 0.8, ease: "easeOut", at: "-0.8" },
+      ],
     ]);
+
+    if (overlayTitleLine1El) {
+      scrambleTo(overlayTitleLine1El, "THINK", overlayTitleLine1Gen);
+    }
+    if (overlayTitleLine2El) {
+      scrambleTo(overlayTitleLine2El, "CREATE", overlayTitleLine2Gen);
+    }
+    if (overlayTitleLine3El) {
+      scrambleTo(overlayTitleLine3El, "CODE", overlayTitleLine3Gen);
+    }
+    if (overlayTaglineEl) {
+      scrambleTo(
+        overlayTaglineEl,
+        "2018—Future",
+        overlayTaglineGen,
+        undefined,
+        undefined,
+        1.2,
+      );
+    }
   }
+
+  $effect(() => {
+    const isLoaded = (window as any).loaderDone;
+    if (!isLoaded) return;
+
+    if (menuOpen) {
+      animate(
+        ".hero-title-overlay",
+        { opacity: 0, scale: 0.96 },
+        { duration: 0.4, ease: "easeOut" },
+      );
+    } else {
+      animate(
+        ".hero-title-overlay",
+        { opacity: 1, scale: 1 },
+        { duration: 0.5, ease: "easeOut" },
+      );
+    }
+  });
 
   onMount(() => {
     if ((window as any).loaderDone) {
@@ -73,11 +123,17 @@
   });
 </script>
 
-<section class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col">
+<section
+  class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
+>
   <!-- TOP NAV -->
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
     <!-- LOGOTYPE -->
-    <a href="/" class="font-black tracking-tight hover:text-accent transition-colors" style="font-family: var(--font-display); font-size: 1.15rem;">
+    <a
+      href="/"
+      class="font-black tracking-tight hover:text-accent transition-colors"
+      style="font-family: var(--font-display); font-size: 1.15rem;"
+    >
       LOGOTYPE
     </a>
 
@@ -87,7 +143,15 @@
           <a
             href={item.href}
             class="label hover:text-accent transition-colors inline-flex items-center gap-1.5"
-            onmouseenter={() => scrambleTo(navTextEls[i], item.label, navGens[i], undefined, undefined, 2)}
+            onmouseenter={() =>
+              scrambleTo(
+                navTextEls[i],
+                item.label,
+                navGens[i],
+                undefined,
+                undefined,
+                2,
+              )}
           >
             <span bind:this={navTextEls[i]}>{item.label}</span>
           </a>
@@ -100,53 +164,85 @@
   </nav>
 
   <!-- MAIN GRID -->
-  <div class="flex-1 grid grid-cols-12 gap-6 mt-8 md:mt-12">
-
+  <div class="flex-1 grid grid-cols-12 gap-6 mt-2">
     <!-- LEFT COLUMN -->
-    <div class="hero-left opacity-0 invisible col-span-3 relative flex flex-col justify-center">
+    <div
+      class="hero-left opacity-0 invisible col-span-3 relative flex flex-col justify-center z-10"
+    >
       <div>
         <HeroTitle {lang} />
-
-
       </div>
 
       <!-- LinkedIn link -->
       <a
         href="#"
         class="absolute bottom-0 left-0 label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
-        onmouseenter={() => scrambleTo(linkedinTextEl, tr.labels.linkedin, linkedinGen, undefined, undefined, 2)}
+        onmouseenter={() =>
+          scrambleTo(
+            linkedinTextEl,
+            tr.labels.linkedin,
+            linkedinGen,
+            undefined,
+            undefined,
+            2,
+          )}
       >
         <span bind:this={linkedinTextEl}>{tr.labels.linkedin}</span>
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg
+          class="w-3.5 h-3.5"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <path d="M7 7h10v10" />
           <path d="m7 17 10-10" />
         </svg>
       </a>
     </div>
 
-    <!-- CENTER — PLACEHOLDER IMAGE -->
-    <div class="hero-center opacity-0 invisible col-span-6 flex items-center justify-center">
-      <div class="relative w-full h-full max-h-[78vh] flex items-center justify-center">
-        <div
-          class="w-full h-full rounded-sm relative overflow-hidden"
-          style="background:
-            radial-gradient(120% 100% at 50% 30%, #E8E5DE 0%, #D9D6D0 60%, #C8C4BD 100%);"
-        >
-          <div
-            class="absolute inset-0 opacity-[0.06]"
-            style="background-image: repeating-linear-gradient(135deg, #0A0A0A 0 1px, transparent 1px 14px);"
-          ></div>
-
-          <SphereScene />
-        </div>
-      </div>
-    </div>
+    <!-- CENTER SPACE HOLDER -->
+    <div class="col-span-6 pointer-events-none"></div>
 
     <!-- RIGHT COLUMN -->
-    <div class="col-span-3 relative flex flex-col justify-center">
+    <div class="col-span-3 relative flex flex-col justify-center z-10">
       <MouseInfo />
     </div>
+  </div>
 
+  <!-- CENTER MODEL — ABSOLUTE VIEWPORT CENTERED -->
+  <div
+    class="hero-center opacity-0 invisible absolute inset-0 flex items-center justify-center pointer-events-none z-0"
+  >
+    <div
+      class="relative w-[50vw] h-[62vh] flex items-center justify-center pointer-events-auto"
+    >
+      <div class="w-full h-full rounded-sm relative">
+        <SphereScene />
+      </div>
+    </div>
+  </div>
+
+  <!-- Tagline & Title Bottom Overlay -->
+  <div
+    class="hero-title-overlay absolute bottom-8 md:bottom-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none select-none text-center flex flex-col items-center gap-2 sm:gap-3"
+  >
+    <h1
+      class="text-xl sm:text-2xl md:text-3xl lg:text-[2.2vw] font-black uppercase tracking-widest text-ink select-none flex items-center justify-center gap-5 sm:gap-8"
+      style="font-family: var(--font-display);"
+    >
+      <span bind:this={overlayTitleLine1El}>THINK</span>
+      <span bind:this={overlayTitleLine2El}>CREATE</span>
+      <span bind:this={overlayTitleLine3El}>CODE</span>
+    </h1>
+    <p
+      class="text-[12px] md:text-[16px] font-display tracking-widest text-ink uppercase leading-relaxed select-none"
+    >
+      <span bind:this={overlayTaglineEl}>2018—Future</span>
+    </p>
   </div>
 
   <button
@@ -172,4 +268,4 @@
 </section>
 
 <!-- MENU OVERLAY (osobny komponent) -->
-<MenuOverlay lang={lang} bind:menuOpen />
+<MenuOverlay {lang} bind:menuOpen />
