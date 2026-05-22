@@ -7,6 +7,7 @@
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo } from "../utils/scramble";
+  import SphereScene from "./SphereScene.svelte";
 
   let { initialLang = "pl" as Lang } = $props();
 
@@ -136,9 +137,7 @@
             style="background-image: repeating-linear-gradient(135deg, #0A0A0A 0 1px, transparent 1px 14px);"
           ></div>
 
-          <span class="absolute top-4 left-4 label text-ink/40">
-            placeholder · model image
-          </span>
+          <SphereScene />
         </div>
       </div>
     </div>
