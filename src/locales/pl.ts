@@ -14,9 +14,10 @@ export const pl = {
     prefix: "Web",
     roles: ["Creative", "Full Stack", "Frontend", "Mobile"] as const,
     roleLabel: "Developer",
-    availableLabel: "Available",
-    statuses: ["Full Time", "Freelance", "Remote", "Contract"] as const,
-    location: "Poland",
+    availableLabel: "Dostępny",
+    statuses: ["Pełny etat", "Freelance", "Zdalnie", "Kontrakt"] as const,
+    location: "Polska",
+    tagline: ["THINK", "CREATE", "CODE"] as const,
   },
 } as const;
 

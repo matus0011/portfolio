@@ -7,6 +7,14 @@
   import wobbleVertexShader from "../shaders/wobble/vertex.glsl";
   import wobbleFragmentShader from "../shaders/wobble/fragment.glsl";
 
+  let { menuOpen = false }: { menuOpen: boolean } = $props();
+
+  let _targetOpacity = 0.3;
+
+  $effect(() => {
+    _targetOpacity = menuOpen ? 1 : 0.3;
+  });
+
   let canvasEl: HTMLCanvasElement;
 
   onMount(() => {
@@ -171,11 +179,10 @@
     const tick = () => {
       const elapsed = clock.getElapsedTime();
 
-      // Rotate mesh automatically
       mesh.rotation.y = elapsed * 0.08;
-
-      // Materials
       uniforms.uTime.value = elapsed;
+
+      material.opacity = THREE.MathUtils.lerp(material.opacity, _targetOpacity, 0.06);
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

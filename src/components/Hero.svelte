@@ -6,7 +6,7 @@
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
-  import { scrambleTo } from "../utils/scramble";
+  import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import SphereScene from "./SphereScene.svelte";
 
   let { initialLang = "pl" as Lang } = $props();
@@ -25,6 +25,22 @@
   const linkedinGen = { v: 0 };
   let linkedinTextEl: HTMLSpanElement;
   let navTextEls: HTMLSpanElement[] = [];
+
+  function getTime() {
+    return new Date().toLocaleTimeString("pl-PL", {
+      timeZone: "Europe/Warsaw",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+  function getTimezone() {
+    return Intl.DateTimeFormat("en", { timeZone: "Europe/Warsaw", timeZoneName: "short" })
+      .formatToParts(new Date())
+      .find((p) => p.type === "timeZoneName")?.value ?? "CET";
+  }
+  let timeEl: HTMLSpanElement;
+  const tGen = { v: 0 };
+  let timezone = $state(getTimezone());
 
   let overlayTitleLine1El: HTMLSpanElement;
   let overlayTitleLine2El: HTMLSpanElement;
@@ -69,33 +85,37 @@
     ]);
 
     if (overlayTitleLine1El) {
-      scrambleTo(overlayTitleLine1El, "THINK", overlayTitleLine1Gen);
+      scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
     }
     if (overlayTitleLine2El) {
-      scrambleTo(overlayTitleLine2El, "CREATE", overlayTitleLine2Gen);
+      scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
     }
     if (overlayTitleLine3El) {
-      scrambleTo(overlayTitleLine3El, "CODE", overlayTitleLine3Gen);
+      scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
     }
 
   }
 
+  let menuWasOpen = false;
+
   $effect(() => {
-    const isLoaded = (window as any).loaderDone;
-    if (!isLoaded) return;
+    const overlay = document.querySelector(".hero-title-overlay") as HTMLElement | null;
+    if (!overlay) return;
 
     if (menuOpen) {
-      animate(
-        ".hero-title-overlay",
-        { opacity: 0, scale: 0.96 },
-        { duration: 0.4, ease: "easeOut" },
-      );
+      menuWasOpen = true;
+      overlay.style.transition = "opacity 0.4s ease-out, scale 0.4s ease-out";
+      overlay.style.opacity = "0";
+      overlay.style.scale = "0.96";
     } else {
-      animate(
-        ".hero-title-overlay",
-        { opacity: 1, scale: 1 },
-        { duration: 0.5, ease: "easeOut" },
-      );
+      overlay.style.transition = "opacity 0.5s ease-out, scale 0.5s ease-out";
+      overlay.style.opacity = "1";
+      overlay.style.scale = "1";
+      if (menuWasOpen && (window as any).loaderDone) {
+        if (overlayTitleLine1El) scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
+        if (overlayTitleLine2El) scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
+        if (overlayTitleLine3El) scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
+      }
     }
   });
 
@@ -106,7 +126,18 @@
       window.addEventListener("loaderFinished", initIntro, { once: true });
     }
 
+    let lastTime = getTime();
+    if (timeEl) scrambleTo(timeEl, lastTime, tGen, DIGIT_CHARS, ": ");
+    const clockInterval = setInterval(() => {
+      const now = getTime();
+      if (now !== lastTime) {
+        lastTime = now;
+        if (timeEl) scrambleTo(timeEl, now, tGen, DIGIT_CHARS, ": ");
+      }
+    }, 1000);
+
     return () => {
+      clearInterval(clockInterval);
       window.removeEventListener("loaderFinished", initIntro);
     };
   });
@@ -117,14 +148,7 @@
 >
   <!-- TOP NAV -->
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
-    <!-- LOGOTYPE -->
-    <a
-      href="/"
-      class="font-black tracking-tight hover:text-accent transition-colors"
-      style="font-family: var(--font-display); font-size: 1.15rem;"
-    >
-      LOGOTYPE
-    </a>
+    <HeroTitle {lang} />
 
     <ul class="flex items-center gap-10">
       {#each navRight as item, i (item.label)}
@@ -158,14 +182,11 @@
     <div
       class="hero-left opacity-0 invisible col-span-3 relative flex flex-col justify-center z-10"
     >
-      <div>
-        <HeroTitle {lang} />
-      </div>
-
-      <!-- LinkedIn link -->
+      <!-- LinkedIn link + location -->
+      <div class="absolute bottom-0 left-0 flex flex-col gap-1">
       <a
         href="#"
-        class="absolute bottom-0 left-0 label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+        class="label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
         onmouseenter={() =>
           scrambleTo(
             linkedinTextEl,
@@ -191,15 +212,18 @@
           <path d="m7 17 10-10" />
         </svg>
       </a>
+      <div class="label flex items-center gap-1.5">
+        <span>{tr.hero.location}</span>
+        <span class="opacity-40">·</span>
+        <span bind:this={timeEl}></span>
+        <span>{timezone}</span>
+      </div>
+      <MouseInfo />
+      </div>
     </div>
 
     <!-- CENTER SPACE HOLDER -->
-    <div class="col-span-6 pointer-events-none"></div>
-
-    <!-- RIGHT COLUMN -->
-    <div class="col-span-3 relative flex flex-col justify-center z-10">
-      <MouseInfo />
-    </div>
+    <div class="col-span-9 pointer-events-none"></div>
   </div>
 
   <!-- CENTER MODEL — ABSOLUTE VIEWPORT CENTERED -->
@@ -210,7 +234,7 @@
       class="relative w-[50vw] h-[62vh] flex items-center justify-center pointer-events-auto"
     >
       <div class="w-full h-full rounded-sm relative">
-        <SphereScene />
+        <SphereScene {menuOpen} />
       </div>
     </div>
   </div>
@@ -220,12 +244,12 @@
     class="hero-title-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center select-none"
   >
     <h1
-      class="text-[15vw] md:text-[13vw] lg:text-[11vw] font-black uppercase tracking-widest text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92]"
-      style="font-family: var(--font-display);"
+      class="text-[16vw] md:text-[14vw] lg:text-[12vw] font-black uppercase tracking-wider text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92]"
+      style="font-family: var(--font-display)"
     >
-      <span bind:this={overlayTitleLine1El}>THINK</span>
-      <span bind:this={overlayTitleLine2El}>CREATE</span>
-      <span bind:this={overlayTitleLine3El}>CODE</span>
+      <span bind:this={overlayTitleLine1El}></span>
+      <span bind:this={overlayTitleLine2El}></span>
+      <span bind:this={overlayTitleLine3El}></span>
     </h1>
   </div>
 
