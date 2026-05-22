@@ -29,11 +29,9 @@
   let overlayTitleLine1El: HTMLSpanElement;
   let overlayTitleLine2El: HTMLSpanElement;
   let overlayTitleLine3El: HTMLSpanElement;
-  let overlayTaglineEl: HTMLSpanElement;
   const overlayTitleLine1Gen = { v: 0 };
   const overlayTitleLine2Gen = { v: 0 };
   const overlayTitleLine3Gen = { v: 0 };
-  const overlayTaglineGen = { v: 0 };
 
   function initIntro() {
     // Usuń klasę invisible z elementów, by ujawnić je przed animacją opacity
@@ -79,16 +77,7 @@
     if (overlayTitleLine3El) {
       scrambleTo(overlayTitleLine3El, "CODE", overlayTitleLine3Gen);
     }
-    if (overlayTaglineEl) {
-      scrambleTo(
-        overlayTaglineEl,
-        "2018—Future",
-        overlayTaglineGen,
-        undefined,
-        undefined,
-        1.2,
-      );
-    }
+
   }
 
   $effect(() => {
@@ -226,23 +215,18 @@
     </div>
   </div>
 
-  <!-- Tagline & Title Bottom Overlay -->
+  <!-- Center Titles Overlay -->
   <div
-    class="hero-title-overlay absolute bottom-8 md:bottom-10 left-1/2 -translate-x-1/2 z-10 pointer-events-none select-none text-center flex flex-col items-center gap-2 sm:gap-3"
+    class="hero-title-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center select-none"
   >
     <h1
-      class="text-xl sm:text-2xl md:text-3xl lg:text-[2.2vw] font-black uppercase tracking-widest text-ink select-none flex items-center justify-center gap-5 sm:gap-8"
+      class="text-[15vw] md:text-[13vw] lg:text-[11vw] font-black uppercase tracking-widest text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92]"
       style="font-family: var(--font-display);"
     >
       <span bind:this={overlayTitleLine1El}>THINK</span>
       <span bind:this={overlayTitleLine2El}>CREATE</span>
       <span bind:this={overlayTitleLine3El}>CODE</span>
     </h1>
-    <p
-      class="text-[12px] md:text-[16px] font-display tracking-widest text-ink uppercase leading-relaxed select-none"
-    >
-      <span bind:this={overlayTaglineEl}>2018—Future</span>
-    </p>
   </div>
 
   <button

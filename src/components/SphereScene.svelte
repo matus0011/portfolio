@@ -129,8 +129,11 @@
       ior: 1.5,
       thickness: 1.5,
       transparent: true,
+      opacity: 0.3,
       wireframe: false,
     });
+
+    gui.add(material, "opacity", 0, 1, 0.01).name("opacity");
 
     const depthMaterial = new CustomShaderMaterial({
       // CSM
