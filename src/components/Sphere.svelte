@@ -6,6 +6,10 @@
 
   let wrapperEl: HTMLDivElement;
 
+  const targetOpacity = $derived(
+    ui.menuOpen ? 1 : 0.3 + 0.7 * ui.heroScrollProgress,
+  );
+
   function reveal() {
     animate(
       wrapperEl,
@@ -30,7 +34,7 @@
   style="opacity: 0"
 >
   <div class="sphere-box">
-    <SphereScene menuOpen={ui.menuOpen} />
+    <SphereScene {targetOpacity} />
   </div>
 </div>
 

@@ -1,12 +1,16 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { animate } from "motion";
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
   import MagneticDots from "./MagneticDots.svelte";
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
+
+  let heroSectionEl: HTMLElement;
 
   let { initialLang = "pl" as Lang } = $props();
 
@@ -108,6 +112,12 @@
         if (overlayTitleLine2El) scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
         if (overlayTitleLine3El) scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
       }
+      window.setTimeout(() => {
+        overlay.style.transition = "";
+        overlay.style.opacity = "";
+        overlay.style.scale = "";
+        ScrollTrigger.refresh();
+      }, 550);
     }
   });
 
@@ -128,14 +138,44 @@
       }
     }, 1000);
 
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      const titleOverlay = heroSectionEl.querySelector(
+        ".hero-title-overlay",
+      ) as HTMLElement | null;
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: heroSectionEl,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: (self) => {
+            ui.heroScrollProgress = self.progress;
+          },
+        },
+      });
+
+      if (titleOverlay) {
+        tl.to(
+          titleOverlay,
+          { opacity: 0, scale: 0.9, y: -40, ease: "none" },
+          0,
+        );
+      }
+    }, heroSectionEl);
+
     return () => {
       clearInterval(clockInterval);
       window.removeEventListener("loaderFinished", initIntro);
+      ctx.revert();
     };
   });
 </script>
 
 <section
+  bind:this={heroSectionEl}
   class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
 >
   <!-- TOP NAV -->

@@ -7,12 +7,12 @@
   import wobbleVertexShader from "../shaders/wobble/vertex.glsl";
   import wobbleFragmentShader from "../shaders/wobble/fragment.glsl";
 
-  let { menuOpen = false }: { menuOpen: boolean } = $props();
+  let { targetOpacity = 0.3 }: { targetOpacity?: number } = $props();
 
-  let _targetOpacity = 0.3;
+  let _targetOpacity = $state(0.3);
 
   $effect(() => {
-    _targetOpacity = menuOpen ? 1 : 0.3;
+    _targetOpacity = targetOpacity;
   });
 
   let canvasEl: HTMLCanvasElement;
