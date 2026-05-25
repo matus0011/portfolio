@@ -177,6 +177,20 @@
         scrub: true,
         onUpdate: (self) => {
           ui.heroScrollProgress = self.progress;
+
+          // Sphere morph burst: ramp 0.65→0.85, decay 0.85→1.0
+          const p = self.progress;
+          let morph = 0;
+          if (p > 0.65 && p < 1.0) {
+            if (p < 0.85) {
+              const t = (p - 0.65) / 0.2;
+              morph = t * t * (3 - 2 * t); // smoothstep
+            } else {
+              const t = (p - 0.85) / 0.15;
+              morph = 1 - t * t * (3 - 2 * t);
+            }
+          }
+          ui.morphProgress = morph;
         },
       });
     }, heroSectionEl);

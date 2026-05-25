@@ -1,4 +1,5 @@
 # Astro Starter Kit: Minimal
+#https://tympanus.net/codrops/2026/01/15/building-a-scroll-driven-dual-wave-text-animation-with-gsap/
 
 ```sh
 npm create astro@latest -- --template minimal
