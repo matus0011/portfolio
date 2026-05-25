@@ -7,7 +7,7 @@
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
-  import { scrambleTo, letterRise, letterDrop, DIGIT_CHARS } from "../utils/scramble";
+  import { scrambleTo, splitChars, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
 
   let heroSectionEl: HTMLElement;
@@ -47,9 +47,54 @@
   let overlayTitleLine1El: HTMLSpanElement;
   let overlayTitleLine2El: HTMLSpanElement;
   let overlayTitleLine3El: HTMLSpanElement;
-  const overlayTitleLine1Gen = { v: 0 };
-  const overlayTitleLine2Gen = { v: 0 };
-  const overlayTitleLine3Gen = { v: 0 };
+  let titleChars: HTMLSpanElement[] = [];
+  let dropScrollTrigger: ScrollTrigger | null = null;
+
+  function setupTitleDropScrub() {
+    if (!titleChars.length || !heroSectionEl) return;
+    if (dropScrollTrigger) {
+      dropScrollTrigger.kill();
+      dropScrollTrigger = null;
+    }
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: heroSectionEl,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+      },
+    });
+    tl.to(titleChars, {
+      yPercent: 110,
+      opacity: 0,
+      stagger: { each: 0.04, from: "start" },
+      ease: "none",
+    });
+    dropScrollTrigger = tl.scrollTrigger ?? null;
+  }
+
+  function runTitleIntro() {
+    titleChars = [];
+    if (overlayTitleLine1El)
+      titleChars.push(...splitChars(overlayTitleLine1El, tr.hero.tagline[0]));
+    if (overlayTitleLine2El)
+      titleChars.push(...splitChars(overlayTitleLine2El, tr.hero.tagline[1]));
+    if (overlayTitleLine3El)
+      titleChars.push(...splitChars(overlayTitleLine3El, tr.hero.tagline[2]));
+
+    gsap.fromTo(
+      titleChars,
+      { yPercent: 110, opacity: 0 },
+      {
+        yPercent: 0,
+        opacity: 1,
+        duration: 0.7,
+        stagger: 0.04,
+        ease: "power3.out",
+        onComplete: () => setupTitleDropScrub(),
+      },
+    );
+  }
 
   function initIntro() {
     const elements = document.querySelectorAll(
@@ -80,16 +125,7 @@
       ],
     ]);
 
-    if (overlayTitleLine1El) {
-      letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
-    }
-    if (overlayTitleLine2El) {
-      letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
-    }
-    if (overlayTitleLine3El) {
-      letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
-    }
-
+    runTitleIntro();
   }
 
   let menuWasOpen = false;
@@ -108,9 +144,7 @@
       overlay.style.opacity = "1";
       overlay.style.scale = "1";
       if (menuWasOpen && (window as any).loaderDone) {
-        if (overlayTitleLine1El) letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
-        if (overlayTitleLine2El) letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
-        if (overlayTitleLine3El) letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
+        runTitleIntro();
       }
       window.setTimeout(() => {
         overlay.style.transition = "";
@@ -141,10 +175,6 @@
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      let scrambledOut = false;
-      const SCRAMBLE_THRESHOLD = 0.7;
-      const SCRAMBLE_BACK_THRESHOLD = 0.65;
-
       ScrollTrigger.create({
         trigger: heroSectionEl,
         start: "top top",
@@ -152,24 +182,6 @@
         scrub: true,
         onUpdate: (self) => {
           ui.heroScrollProgress = self.progress;
-
-          if (self.progress >= SCRAMBLE_THRESHOLD && !scrambledOut) {
-            scrambledOut = true;
-            if (overlayTitleLine1El)
-              letterDrop(overlayTitleLine1El, overlayTitleLine1Gen);
-            if (overlayTitleLine2El)
-              letterDrop(overlayTitleLine2El, overlayTitleLine2Gen);
-            if (overlayTitleLine3El)
-              letterDrop(overlayTitleLine3El, overlayTitleLine3Gen);
-          } else if (self.progress <= SCRAMBLE_BACK_THRESHOLD && scrambledOut) {
-            scrambledOut = false;
-            if (overlayTitleLine1El)
-              letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
-            if (overlayTitleLine2El)
-              letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
-            if (overlayTitleLine3El)
-              letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
-          }
         },
       });
     }, heroSectionEl);

@@ -47,6 +47,20 @@ export function scrambleTo(
   });
 }
 
+export function splitChars(el: HTMLElement, text: string): HTMLSpanElement[] {
+  el.innerHTML = "";
+  const spans: HTMLSpanElement[] = [];
+  for (const char of text) {
+    const s = document.createElement("span");
+    s.textContent = char === " " ? " " : char;
+    s.style.display = "inline-block";
+    s.style.willChange = "transform, opacity";
+    el.appendChild(s);
+    spans.push(s);
+  }
+  return spans;
+}
+
 export function letterRise(
   el: HTMLElement,
   text: string,
