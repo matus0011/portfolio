@@ -1,8 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Hero from "../../components/Hero.svelte";
+import TechSection from "../../components/TechSection.svelte";
 ---
 
-<Layout title="lab. — First Collection">
+<Layout title="lab. — First Collection" lang="en">
   <Hero client:load initialLang="en" />
+  <TechSection client:load />
 </Layout>

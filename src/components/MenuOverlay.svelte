@@ -2,11 +2,9 @@
   import { fade } from "svelte/transition";
   import { t, type Lang } from "../locales";
   import { scrambleTo } from "../utils/scramble";
+  import { ui } from "../state/ui.svelte";
 
-  let {
-    lang = "pl" as Lang,
-    menuOpen = $bindable(false),
-  }: { lang: Lang; menuOpen: boolean } = $props();
+  let { lang = "pl" as Lang }: { lang: Lang } = $props();
 
   const tr = $derived(t(lang));
 
@@ -50,7 +48,7 @@
   }
 
   $effect(() => {
-    if (menuOpen) {
+    if (ui.menuOpen) {
       requestAnimationFrame(() => {
         const first = navEl?.querySelector("a") as HTMLElement | null;
         if (first) indicatorY = getViewportY(first);
@@ -60,7 +58,7 @@
   });
 </script>
 
-{#if menuOpen}
+{#if ui.menuOpen}
   <div
     transition:fade={{ duration: 250 }}
     class="fixed inset-0 z-50 flex flex-col justify-between px-8 md:px-12 py-6 md:py-8"
@@ -69,7 +67,7 @@
     <!-- CLOSE BUTTON -->
     <div class="flex justify-end items-center w-full">
       <button
-        onclick={() => (menuOpen = false)}
+        onclick={() => (ui.menuOpen = false)}
         class="hover:text-accent transition-colors cursor-pointer flex items-center justify-center p-8 -m-8"
         aria-label={tr.labels.close}
       >
@@ -114,7 +112,7 @@
         {#each menuItems as item, i (item.label)}
           <a
             href={item.href}
-            onclick={() => (menuOpen = false)}
+            onclick={() => (ui.menuOpen = false)}
             onmouseenter={(e) => handleLinkMouseEnter(i, e.currentTarget as HTMLElement)}
             class="inline-block text-6xl sm:text-8xl md:text-9xl font-black uppercase tracking-tight hover:text-accent transition-colors duration-300 py-0 leading-none"
             style="font-family: var(--font-display)"

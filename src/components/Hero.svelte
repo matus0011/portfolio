@@ -2,16 +2,14 @@
   import { onMount } from "svelte";
   import { animate } from "motion";
   import MagneticDots from "./MagneticDots.svelte";
-  import MenuOverlay from "./MenuOverlay.svelte";
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
-  import SphereScene from "./SphereScene.svelte";
+  import { ui } from "../state/ui.svelte";
 
   let { initialLang = "pl" as Lang } = $props();
 
-  let menuOpen = $state(false);
   const lang = $derived(initialLang as Lang);
   const tr = $derived(t(lang));
 
@@ -50,22 +48,16 @@
   const overlayTitleLine3Gen = { v: 0 };
 
   function initIntro() {
-    // Usuń klasę invisible z elementów, by ujawnić je przed animacją opacity
     const elements = document.querySelectorAll(
-      ".hero-center, .hero-nav, .hero-left, .hero-mouse-info, .hero-arrow",
+      ".hero-nav, .hero-left, .hero-mouse-info, .hero-arrow",
     );
     elements.forEach((el) => el.classList.remove("invisible"));
 
     animate([
       [
-        ".hero-center",
-        { scale: [1.06, 1], opacity: [0, 1] },
-        { duration: 1.6, ease: "easeOut" },
-      ],
-      [
         ".hero-nav",
         { y: [-20, 0], opacity: [0, 1] },
-        { duration: 1.2, ease: "easeOut", at: "-1.2" },
+        { duration: 1.2, ease: "easeOut" },
       ],
       [
         ".hero-left",
@@ -102,7 +94,7 @@
     const overlay = document.querySelector(".hero-title-overlay") as HTMLElement | null;
     if (!overlay) return;
 
-    if (menuOpen) {
+    if (ui.menuOpen) {
       menuWasOpen = true;
       overlay.style.transition = "opacity 0.4s ease-out, scale 0.4s ease-out";
       overlay.style.opacity = "0";
@@ -171,7 +163,7 @@
         </li>
       {/each}
       <li>
-        <MagneticDots onclick={() => (menuOpen = true)} />
+        <MagneticDots onclick={() => (ui.menuOpen = true)} />
       </li>
     </ul>
   </nav>
@@ -226,19 +218,6 @@
     <div class="col-span-9 pointer-events-none"></div>
   </div>
 
-  <!-- CENTER MODEL — ABSOLUTE VIEWPORT CENTERED -->
-  <div
-    class="hero-center opacity-0 invisible absolute inset-0 flex items-center justify-center pointer-events-none z-0"
-  >
-    <div
-      class="relative w-[50vw] h-[62vh] flex items-center justify-center pointer-events-auto"
-    >
-      <div class="w-full h-full rounded-sm relative">
-        <SphereScene {menuOpen} />
-      </div>
-    </div>
-  </div>
-
   <!-- Center Titles Overlay -->
   <div
     class="hero-title-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center select-none"
@@ -274,6 +253,3 @@
     </svg>
   </button>
 </section>
-
-<!-- MENU OVERLAY (osobny komponent) -->
-<MenuOverlay {lang} bind:menuOpen />
