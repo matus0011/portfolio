@@ -98,7 +98,7 @@
 
   function initIntro() {
     const elements = document.querySelectorAll(
-      ".hero-nav, .hero-left, .hero-mouse-info, .hero-arrow",
+      ".hero-nav, .hero-left, .hero-mouse-info",
     );
     elements.forEach((el) => el.classList.remove("invisible"));
 
@@ -117,11 +117,6 @@
         ".hero-mouse-info",
         { y: [25, 0], opacity: [0, 1] },
         { duration: 1.2, ease: "easeOut", at: "-0.85" },
-      ],
-      [
-        ".hero-arrow",
-        { y: [40, 0], opacity: [0, 1] },
-        { duration: 0.8, ease: "easeOut", at: "-0.8" },
       ],
     ]);
 
@@ -196,7 +191,7 @@
 
 <section
   bind:this={heroSectionEl}
-  class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
+  class="relative h-[90vh] w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
 >
   <!-- TOP NAV -->
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
@@ -270,12 +265,16 @@
         <span bind:this={timeEl}></span>
         <span>{timezone}</span>
       </div>
-      <MouseInfo />
       </div>
     </div>
 
     <!-- CENTER SPACE HOLDER -->
     <div class="col-span-9 pointer-events-none"></div>
+  </div>
+
+  <!-- BOTTOM RIGHT — MouseInfo -->
+  <div class="absolute bottom-6 right-8 md:bottom-8 md:right-12 z-10">
+    <MouseInfo />
   </div>
 
   <!-- Center Titles Overlay -->
@@ -292,24 +291,4 @@
     </h1>
   </div>
 
-  <button
-    aria-label={tr.labels.scroll}
-    class="hero-arrow opacity-0 invisible group absolute right-0 bottom-0 w-[50px] h-[100px] bg-accent text-bg flex items-center justify-center overflow-hidden hover:bg-ink transition-colors duration-300"
-  >
-    <svg
-      width="14"
-      height="22"
-      viewBox="0 0 14 22"
-      fill="none"
-      aria-hidden="true"
-      class="transition-transform duration-300 ease-out group-hover:translate-y-1.5"
-    >
-      <path
-        d="M7 1V21M7 21L1 15M7 21L13 15"
-        stroke="currentColor"
-        stroke-width="1.4"
-        stroke-linecap="square"
-      />
-    </svg>
-  </button>
 </section>

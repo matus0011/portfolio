@@ -189,7 +189,7 @@
   .tech-section {
     position: relative;
     width: 100%;
-    padding: 8vh 0 20vh;
+    padding: 1vh 0 2vh;
   }
   .dual-wave-wrapper {
     display: flex;
