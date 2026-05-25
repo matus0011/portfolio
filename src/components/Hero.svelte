@@ -7,7 +7,7 @@
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
-  import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
+  import { scrambleTo, letterRise, letterDrop, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
 
   let heroSectionEl: HTMLElement;
@@ -81,13 +81,13 @@
     ]);
 
     if (overlayTitleLine1El) {
-      scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
+      letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
     }
     if (overlayTitleLine2El) {
-      scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
+      letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
     }
     if (overlayTitleLine3El) {
-      scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
+      letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
     }
 
   }
@@ -108,9 +108,9 @@
       overlay.style.opacity = "1";
       overlay.style.scale = "1";
       if (menuWasOpen && (window as any).loaderDone) {
-        if (overlayTitleLine1El) scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
-        if (overlayTitleLine2El) scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
-        if (overlayTitleLine3El) scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
+        if (overlayTitleLine1El) letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
+        if (overlayTitleLine2El) letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
+        if (overlayTitleLine3El) letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
       }
       window.setTimeout(() => {
         overlay.style.transition = "";
@@ -141,29 +141,37 @@
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const titleOverlay = heroSectionEl.querySelector(
-        ".hero-title-overlay",
-      ) as HTMLElement | null;
+      let scrambledOut = false;
+      const SCRAMBLE_THRESHOLD = 0.7;
+      const SCRAMBLE_BACK_THRESHOLD = 0.65;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: heroSectionEl,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          onUpdate: (self) => {
-            ui.heroScrollProgress = self.progress;
-          },
+      ScrollTrigger.create({
+        trigger: heroSectionEl,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          ui.heroScrollProgress = self.progress;
+
+          if (self.progress >= SCRAMBLE_THRESHOLD && !scrambledOut) {
+            scrambledOut = true;
+            if (overlayTitleLine1El)
+              letterDrop(overlayTitleLine1El, overlayTitleLine1Gen);
+            if (overlayTitleLine2El)
+              letterDrop(overlayTitleLine2El, overlayTitleLine2Gen);
+            if (overlayTitleLine3El)
+              letterDrop(overlayTitleLine3El, overlayTitleLine3Gen);
+          } else if (self.progress <= SCRAMBLE_BACK_THRESHOLD && scrambledOut) {
+            scrambledOut = false;
+            if (overlayTitleLine1El)
+              letterRise(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen);
+            if (overlayTitleLine2El)
+              letterRise(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen);
+            if (overlayTitleLine3El)
+              letterRise(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen);
+          }
         },
       });
-
-      if (titleOverlay) {
-        tl.to(
-          titleOverlay,
-          { opacity: 0, scale: 0.9, y: -40, ease: "none" },
-          0,
-        );
-      }
     }, heroSectionEl);
 
     return () => {
