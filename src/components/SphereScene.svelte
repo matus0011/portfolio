@@ -83,9 +83,7 @@
     geometry = mergeVertices(geometry);
     geometry.computeTangents();
 
-    // ── GUI & Uniforms ───────────────────────────────────────────────
-    const gui = new GUI({ width: 325 });
-
+    // ── Uniforms ─────────────────────────────────────────────────────
     const debugObject = {
       colorA: "#010101", // Match page primary text/ink
       colorB: "#FE5030", // Match page vibrant orange-red accent
@@ -103,30 +101,6 @@
       uColorA: new THREE.Uniform(new THREE.Color(debugObject.colorA)),
       uColorB: new THREE.Uniform(new THREE.Color(debugObject.colorB)),
     };
-
-    gui
-      .add(uniforms.uPositionFrequency, "value", 0, 2, 0.001)
-      .name("uPositionFrequency");
-    gui
-      .add(uniforms.uTimeFrequency, "value", 0, 2, 0.001)
-      .name("uTimeFrequency");
-    gui.add(uniforms.uStrength, "value", 0, 2, 0.001).name("uStrength");
-    gui
-      .add(uniforms.uWarpPositionFrequency, "value", 0, 2, 0.001)
-      .name("uWarpPositionFrequency");
-    gui
-      .add(uniforms.uWarpTimeFrequency, "value", 0, 2, 0.001)
-      .name("uWarpTimeFrequency");
-    gui.add(uniforms.uWarpStrength, "value", 0, 2, 0.001).name("uWarpStrength");
-    gui
-      .addColor(debugObject, "colorA")
-      .onChange(() => uniforms.uColorA.value.set(debugObject.colorA));
-    gui
-      .addColor(debugObject, "colorB")
-      .onChange(() => uniforms.uColorB.value.set(debugObject.colorB));
-
-    // Collapse gui by default for cleaner aesthetic
-    gui.close();
 
     // ── Material (CSM) ───────────────────────────────────────────────
     // Material
@@ -148,8 +122,6 @@
       opacity: 0.3,
       wireframe: false,
     });
-
-    gui.add(material, "opacity", 0, 1, 0.01).name("opacity");
 
     const depthMaterial = new CustomShaderMaterial({
       // CSM

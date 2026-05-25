@@ -48,7 +48,44 @@
   let overlayTitleLine2El: HTMLSpanElement;
   let overlayTitleLine3El: HTMLSpanElement;
   let titleChars: HTMLSpanElement[] = [];
+  let titleH1El: HTMLHeadingElement;
+  let titleTurbEl: SVGFETurbulenceElement;
+  let titleDisplEl: SVGFEDisplacementMapElement;
   let dropScrollTrigger: ScrollTrigger | null = null;
+  const titleFilterId = `hero-distort-${Math.random().toString(36).slice(2, 9)}`;
+
+  // Hover distortion target (matches About peak look)
+  const TITLE_FILTER_FREQ_HOVER = 0.022;
+  const TITLE_FILTER_SCALE_HOVER = 28;
+  const titleFilterState = { freq: 0.005, scale: 0 };
+
+  function applyTitleFilter() {
+    if (titleTurbEl)
+      titleTurbEl.setAttribute("baseFrequency", String(titleFilterState.freq));
+    if (titleDisplEl)
+      titleDisplEl.setAttribute("scale", String(titleFilterState.scale));
+  }
+
+  function onTitleHoverEnter() {
+    gsap.to(titleFilterState, {
+      freq: TITLE_FILTER_FREQ_HOVER,
+      scale: TITLE_FILTER_SCALE_HOVER,
+      duration: 0.55,
+      ease: "power2.out",
+      onUpdate: applyTitleFilter,
+      overwrite: true,
+    });
+  }
+  function onTitleHoverLeave() {
+    gsap.to(titleFilterState, {
+      freq: 0.005,
+      scale: 0,
+      duration: 0.55,
+      ease: "power2.out",
+      onUpdate: applyTitleFilter,
+      overwrite: true,
+    });
+  }
 
   function setupTitleDropScrub() {
     if (!titleChars.length || !heroSectionEl) return;
@@ -81,6 +118,9 @@
       titleChars.push(...splitChars(overlayTitleLine2El, tr.hero.tagline[1]));
     if (overlayTitleLine3El)
       titleChars.push(...splitChars(overlayTitleLine3El, tr.hero.tagline[2]));
+
+    // Make sure h1 is visible (in case a previous scrub left it at opacity 0)
+    if (titleH1El) gsap.set(titleH1El, { opacity: 1 });
 
     gsap.fromTo(
       titleChars,
@@ -195,9 +235,22 @@
       });
     }, heroSectionEl);
 
+    // Bind hover handlers on title (h1 ref may not exist immediately on first paint)
+    const hoverFrame = requestAnimationFrame(() => {
+      if (titleH1El) {
+        titleH1El.addEventListener("mouseenter", onTitleHoverEnter);
+        titleH1El.addEventListener("mouseleave", onTitleHoverLeave);
+      }
+    });
+
     return () => {
       clearInterval(clockInterval);
       window.removeEventListener("loaderFinished", initIntro);
+      cancelAnimationFrame(hoverFrame);
+      if (titleH1El) {
+        titleH1El.removeEventListener("mouseenter", onTitleHoverEnter);
+        titleH1El.removeEventListener("mouseleave", onTitleHoverLeave);
+      }
       ctx.revert();
     };
   });
@@ -205,7 +258,7 @@
 
 <section
   bind:this={heroSectionEl}
-  class="relative h-[90vh] w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
+  class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
 >
   <!-- TOP NAV -->
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
@@ -295,9 +348,37 @@
   <div
     class="hero-title-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center select-none"
   >
+    <!-- SVG filter defs for distortion -->
+    <svg
+      aria-hidden="true"
+      width="0"
+      height="0"
+      style="position:absolute;width:0;height:0;pointer-events:none"
+    >
+      <defs>
+        <filter id={titleFilterId} x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence
+            bind:this={titleTurbEl}
+            type="fractalNoise"
+            baseFrequency="0.005"
+            numOctaves="2"
+            seed="7"
+            result="turb"
+          />
+          <feDisplacementMap
+            bind:this={titleDisplEl}
+            in="SourceGraphic"
+            in2="turb"
+            scale="0"
+          />
+        </filter>
+      </defs>
+    </svg>
+
     <h1
-      class="text-[16vw] md:text-[14vw] lg:text-[12vw] font-black uppercase tracking-wider text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92]"
-      style="font-family: var(--font-display)"
+      bind:this={titleH1El}
+      class="text-[16vw] md:text-[14vw] lg:text-[12vw] font-black uppercase tracking-wider text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92] pointer-events-auto cursor-default"
+      style="font-family: var(--font-display); filter: url(#{titleFilterId}); will-change: filter, opacity;"
     >
       <span bind:this={overlayTitleLine1El}></span>
       <span bind:this={overlayTitleLine2El}></span>
