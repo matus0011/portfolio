@@ -3,7 +3,6 @@
   import * as THREE from "three";
   import CustomShaderMaterial from "three-custom-shader-material/vanilla";
   import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
-  import { GUI } from "lil-gui";
   import wobbleVertexShader from "../shaders/wobble/vertex.glsl";
   import wobbleFragmentShader from "../shaders/wobble/fragment.glsl";
 
@@ -178,7 +177,6 @@
       material.dispose();
       depthMaterial.dispose();
       renderer.dispose();
-      gui.destroy();
     };
   });
 </script>
