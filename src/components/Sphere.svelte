@@ -7,7 +7,7 @@
   let wrapperEl: HTMLDivElement;
 
   const targetOpacity = $derived(
-    ui.menuOpen ? 1 : 0.3 + 0.7 * ui.heroScrollProgress,
+    ui.menuOpen ? 0.5 : 0.15 + 0.35 * ui.heroScrollProgress,
   );
 
   function reveal() {

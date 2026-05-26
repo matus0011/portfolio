@@ -159,14 +159,12 @@
 
   function collectTitleCharsFromDOM() {
     titleChars = [];
-    [overlayTitleLine1El, overlayTitleLine2El, overlayTitleLine3El].forEach((parent) => {
-      if (!parent) return;
-      parent.querySelectorAll(":scope > span").forEach((s) => {
-        const span = s as HTMLSpanElement;
-        span.style.display = "inline-block";
-        span.style.willChange = "filter";
-        titleChars.push(span);
-      });
+    if (!overlayTitleLine2El) return;
+    overlayTitleLine2El.querySelectorAll(":scope > span").forEach((s) => {
+      const span = s as HTMLSpanElement;
+      span.style.display = "inline-block";
+      span.style.willChange = "filter";
+      titleChars.push(span);
     });
   }
 
