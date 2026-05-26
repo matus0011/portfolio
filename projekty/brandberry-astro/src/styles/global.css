@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #000000;
+  --color-paper: #ffffff;
+  --color-muted: #737577;
+  --color-accent: #d4d6d8;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Mona Sans", "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+}
+
+@layer utilities {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.0225em;
+    line-height: 1;
+  }
+  .display-mega {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    line-height: 0.77;
+    letter-spacing: -0.02em;
+  }
+  .reveal-mask {
+    overflow: hidden;
+    display: inline-block;
+    line-height: 0.9;
+  }
+  .reveal-mask > span {
+    display: inline-block;
+    transform: translateY(110%);
+    will-change: transform;
+  }
+  .uplabel {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+}

@@ -1,0 +1,31 @@
+---
+const rows = [
+  { text: "Branding", reverse: false },
+  { text: "Development", reverse: true },
+  { text: "Art Direction", reverse: false },
+  { text: "Design", reverse: true },
+];
+const loop = (s: string) => Array(10).fill(s);
+---
+
+<section
+  class="border-y border-ink/10 overflow-hidden py-6 md:py-10 space-y-2"
+  data-anim="marquee-wrap"
+>
+  {
+    rows.map((r) => (
+      <div
+        class="flex gap-10 whitespace-nowrap"
+        data-marquee
+        data-reverse={r.reverse ? "true" : "false"}
+      >
+        {loop(r.text).map(() => (
+          <span class="display text-5xl md:text-7xl flex items-center gap-10">
+            {r.text}
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-ink align-middle" />
+          </span>
+        ))}
+      </div>
+    ))
+  }
+</section>
