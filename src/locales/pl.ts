@@ -23,7 +23,8 @@ export const pl = {
     "FRONTEND I FULLSTACK",
     "DEVELOPER Z 7-LETNIM",
     "DOŚWIADCZENIEM W BUDOWIE",
-    "APLIKACJI WEBOWYCH I SSR",
+    "APLIKACJI WEB, MOBILE, SSR",
+    "SSG, SPA ORAZ BACKEND",
     "OD ANALIZY PO UTRZYMANIE",
   ] as const,
   about: {

@@ -49,6 +49,9 @@
   const statusSymbols = ["=>", "&&", "fn", "||"];
 
   let roleEl     = $state<HTMLSpanElement | null>(null);
+  let bracketOpenEl: HTMLElement;
+  let bracketCloseEl: HTMLElement;
+  let rolesBlockEl: HTMLElement;
 
   let roleIdx   = 0;
   let cursor    = $state(true);
@@ -302,6 +305,30 @@
           ui.heroScrollProgress = self.progress;
         },
       });
+
+      gsap.to(bracketOpenEl, {
+        y: -40,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: heroSectionEl,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+        },
+      });
+
+      gsap.to(bracketCloseEl, {
+        y: 40,
+        opacity: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: heroSectionEl,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+        },
+      });
     }, heroSectionEl);
 
     // Bind per-letter hover handlers
@@ -408,12 +435,13 @@
 
   <!-- BOTTOM CENTER — Prefix & Roles -->
   <div
+    bind:this={rolesBlockEl}
     class="hero-left opacity-0 invisible absolute bottom-2 left-1/2 -translate-x-1/2 md:bottom-3 z-10 text-center flex flex-col items-center gap-0"
     style="font-family: var(--font-display)"
   >
-    <div class="label" style="font-size: 42px; font-weight: 600; line-height: 0.95;">{tr.hero.prefix}</div>
-    <div class="label text-accent font-mono tracking-normal" style="font-size: 56px; font-weight: 600; line-height: 0.95;" bind:this={roleEl}></div>
-    <div class="label flex items-center justify-center gap-1.5" style="font-size: 42px; font-weight: 600; line-height: 0.95;">
+    <div class="label text-accent" style="font-size: 36px; font-weight: 600; line-height: 0.95;">{tr.hero.prefix}</div>
+    <div class="label font-mono tracking-normal" style="font-size: 36px; font-weight: 600; line-height: 0.95;" bind:this={roleEl}></div>
+    <div class="label text-accent flex items-center justify-center gap-1.5" style="font-size: 36px; font-weight: 600; line-height: 0.95;">
       <span>{tr.hero.roleLabel}</span>
     </div>
   </div>
