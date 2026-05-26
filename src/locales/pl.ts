@@ -19,10 +19,17 @@ export const pl = {
     location: "Polska",
     tagline: ["THINK_CODE", "DESIGN"] as const,
   },
+  aboutLines: [
+    "FRONTEND I FULLSTACK",
+    "DEVELOPER Z 7-LETNIM",
+    "DOŚWIADCZENIEM W BUDOWIE",
+    "APLIKACJI WEBOWYCH I SSR",
+    "OD ANALIZY PO UTRZYMANIE",
+  ] as const,
   about: {
     label: "O mnie",
     heading: ["Pasja do", "budowania", "rzeczy."],
-    bio: "Jestem web developerem z kilkuletnim doświadczeniem w tworzeniu nowoczesnych aplikacji. Specjalizuję się w Frontend oraz Full Stack — łączę dbałość o szczegóły wizualne z solidnym kodem po stronie serwera.",
+    bio: "Frontend / Fullstack Developer z 7-letnim doświadczeniem komercyjnym. Specjalizuję się w Vue, Nuxt, React i React Native, a po stronie backendu w Node.js i Laravel. Pracuję end-to-end — od analizy wymagań i architektury, przez implementację i integracje z API, po długoterminowe utrzymanie aplikacji produkcyjnych.",
     stats: [
       { value: "4+", label: "lata doświadczenia" },
       { value: "30+", label: "projektów" },

@@ -2,15 +2,13 @@
   import { onMount } from "svelte";
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { t, type Lang } from "../locales";
   import { scrambleTo, CHARS } from "../utils/scramble";
 
-  const LINES = [
-    "I AM A PASSIONATE AND",
-    "EXPERIENCED WEB DESIGNER",
-    "DEDICATED TO CRAFTING",
-    "STUNNING AND FUNCTIONAL",
-    "DIGITAL SPAC",
-  ];
+  let { initialLang = "pl" as Lang } = $props();
+  const lang = $derived(initialLang as Lang);
+  const tr = $derived(t(lang));
+  const LINES = $derived(tr.aboutLines);
 
   let lineEls: HTMLElement[] = [];
   const gens = LINES.map(() => ({ v: 0 }));
@@ -21,7 +19,6 @@
     lineEls.forEach((el, i) => {
       if (!el) return;
 
-      // ustaw startową zawartość (ukryta przez clip)
       el.textContent = LINES[i];
 
       ScrollTrigger.create({

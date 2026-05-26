@@ -408,7 +408,6 @@
 
   <!-- BOTTOM CENTER — Prefix & Roles -->
   <div
-    data-speed="0.92"
     class="hero-left opacity-0 invisible absolute bottom-2 left-1/2 -translate-x-1/2 md:bottom-3 z-10 text-center flex flex-col items-center gap-0"
     style="font-family: var(--font-display)"
   >
