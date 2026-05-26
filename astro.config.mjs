@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import tailwindcss from '@tailwindcss/vite';
-import glsl from 'vite-plugin-glsl';
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,6 +14,6 @@ export default defineConfig({
     enabled: false,
   },
   vite: {
-    plugins: [tailwindcss(), glsl()],
+    plugins: [tailwindcss()],
   },
 });
