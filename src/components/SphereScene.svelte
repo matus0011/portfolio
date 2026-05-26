@@ -5,6 +5,7 @@
   import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
   import wobbleVertexShader from "../shaders/wobble/vertex.glsl";
   import wobbleFragmentShader from "../shaders/wobble/fragment.glsl";
+  import GUI from "lil-gui";
 
   let { targetOpacity = 0.3 }: { targetOpacity?: number } = $props();
 
@@ -160,6 +161,31 @@
     };
     raf = requestAnimationFrame(tick);
 
+    // ── GUI ──────────────────────────────────────────────────────────
+    const gui = new GUI({ title: "Sphere Controls" });
+
+    const wobbleFolder = gui.addFolder("Wobble");
+    wobbleFolder.add(uniforms.uPositionFrequency, "value", 0, 2, 0.01).name("Position Freq");
+    wobbleFolder.add(uniforms.uTimeFrequency, "value", 0, 2, 0.01).name("Time Freq");
+    wobbleFolder.add(uniforms.uStrength, "value", 0, 2, 0.01).name("Strength");
+
+    const warpFolder = gui.addFolder("Warp");
+    warpFolder.add(uniforms.uWarpPositionFrequency, "value", 0, 2, 0.01).name("Position Freq");
+    warpFolder.add(uniforms.uWarpTimeFrequency, "value", 0, 2, 0.01).name("Time Freq");
+    warpFolder.add(uniforms.uWarpStrength, "value", 0, 5, 0.01).name("Strength");
+
+    const colorFolder = gui.addFolder("Colors");
+    colorFolder.addColor(debugObject, "colorA").name("Color A").onChange((v: string) => uniforms.uColorA.value.set(v));
+    colorFolder.addColor(debugObject, "colorB").name("Color B").onChange((v: string) => uniforms.uColorB.value.set(v));
+
+    const matFolder = gui.addFolder("Material");
+    matFolder.add(material, "metalness", 0, 1, 0.01).name("Metalness");
+    matFolder.add(material, "roughness", 0, 1, 0.01).name("Roughness");
+    matFolder.add(material, "transmission", 0, 1, 0.01).name("Transmission");
+    matFolder.add(material, "ior", 1, 2.5, 0.01).name("IOR");
+    matFolder.add(material, "thickness", 0, 5, 0.01).name("Thickness");
+    matFolder.add(material, "opacity", 0, 1, 0.01).name("Opacity").onChange((v: number) => { _targetOpacity = v; });
+
     // ── Cleanup ──────────────────────────────────────────────────────
     return () => {
       cancelAnimationFrame(raf);
@@ -168,6 +194,7 @@
       material.dispose();
       depthMaterial.dispose();
       renderer.dispose();
+      gui.destroy();
     };
   });
 </script>

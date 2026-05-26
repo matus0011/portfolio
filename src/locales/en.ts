@@ -19,4 +19,15 @@ export const en = {
     location: "Poland",
     tagline: ["BUILDING", "DIGITAL", "EXPERIENCES"] as const,
   },
+  about: {
+    label: "About me",
+    heading: ["Passion for", "building", "things."],
+    bio: "I'm a web developer with several years of experience building modern applications. I specialise in Frontend and Full Stack — combining attention to visual detail with solid server-side code.",
+    stats: [
+      { value: "4+", label: "years of experience" },
+      { value: "30+", label: "projects" },
+      { value: "10+", label: "technologies" },
+    ] as const,
+    cta: "Get in touch",
+  },
 } as const;
