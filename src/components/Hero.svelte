@@ -397,12 +397,7 @@
           <path d="m7 17 10-10" />
         </svg>
       </a>
-      <div class="label flex items-center gap-1.5 text-accent">
-        <span>{tr.hero.location}</span>
-        <span class="opacity-40">·</span>
-        <span bind:this={timeEl}></span>
-        <span>{timezone}</span>
-      </div>
+
       </div>
     </div>
 
@@ -413,6 +408,7 @@
 
   <!-- BOTTOM CENTER — Prefix & Roles -->
   <div
+    data-speed="0.92"
     class="hero-left opacity-0 invisible absolute bottom-2 left-1/2 -translate-x-1/2 md:bottom-3 z-10 text-center flex flex-col items-center gap-0"
     style="font-family: var(--font-display)"
   >
@@ -437,6 +433,7 @@
 
   <!-- Center Titles Overlay -->
   <div
+    data-speed="0.85"
     class="hero-title-overlay absolute inset-0 flex flex-col items-stretch justify-center pointer-events-none z-10 select-none px-8 md:px-12"
   >
     <!-- SVG filter defs — populated at runtime, one filter per letter -->

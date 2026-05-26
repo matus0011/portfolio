@@ -1,91 +1,80 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import { scrambleTo, CHARS } from "../utils/scramble";
 
-  let sectionEl: HTMLElement;
+  const LINES = [
+    "I AM A PASSIONATE AND",
+    "EXPERIENCED WEB DESIGNER",
+    "DEDICATED TO CRAFTING",
+    "STUNNING AND FUNCTIONAL",
+    "DIGITAL SPAC",
+  ];
 
-  const TITLE = "ABOUT ME";
-  let charInners: HTMLElement[] = [];
+  let lineEls: HTMLElement[] = [];
+  const gens = LINES.map(() => ({ v: 0 }));
 
   onMount(() => {
-    // Filtruj undefined (spacja nie ma bind:this)
-    const chars = charInners.filter(Boolean);
+    gsap.registerPlugin(ScrollTrigger);
 
-    // Literki tytułu schowane na starcie
-    gsap.set(chars, { y: "-110%" });
+    lineEls.forEach((el, i) => {
+      if (!el) return;
 
-    let shown = false;
+      // ustaw startową zawartość (ukryta przez clip)
+      el.textContent = LINES[i];
 
-    const onScroll = () => {
-      const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          scrambleTo(el, LINES[i], gens[i], CHARS, " ", 1.2);
+        },
+      });
+    });
 
-      if (scrolled >= 0.1 && !shown) {
-        shown = true;
-        const order = [...chars].sort(() => Math.random() - 0.5);
-        gsap.to(order, { y: "0%", duration: 0.6, ease: "power3.out", stagger: 0.045 });
-      } else if (scrolled < 0.1 && shown) {
-        shown = false;
-        const order = [...chars].sort(() => Math.random() - 0.5);
-        gsap.to(order, { y: "-110%", duration: 0.4, ease: "power3.in", stagger: 0.035 });
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => ScrollTrigger.getAll().forEach((t) => t.kill());
   });
 </script>
 
-<section bind:this={sectionEl} class="about-section relative w-full px-8 md:px-12 overflow-hidden">
-
-  <!-- Duży tytuł ABOUT ME -->
-  <div class="about-title-wrap" aria-label="About me">
-    {#each TITLE.split("") as char, i}
-      {#if char === " "}
-        <span class="title-space"></span>
-      {:else}
-        <span class="title-char-wrap">
-          <span class="title-char" bind:this={charInners[i]}>{char}</span>
-        </span>
-      {/if}
+<section class="about-section relative w-full px-8 md:px-12 overflow-hidden">
+  <p data-speed="1.04" class="about-desc">
+    {#each LINES as line, i}
+      <span class="line-wrap">
+        <span class="line-text" bind:this={lineEls[i]}>{line}</span>
+      </span>
+      {#if i < LINES.length - 1}<br/>{/if}
     {/each}
-  </div>
-
+  </p>
 </section>
 
-
 <style>
-  /* ── Big title ───────────────────────────────────────────── */
-  .about-title-wrap {
+  .about-section {
+    padding-top: 20rem;
+    padding-bottom: 20rem;
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: center;
-    padding-top: 50px;
-    padding-bottom: 50px;
-    line-height: 0.85;
   }
 
-  .title-char-wrap {
+  .about-desc {
+    font-family: var(--font-display, "Mona Sans"), system-ui, sans-serif;
+    font-size: clamp(2rem, 3.5vw, 4rem);
+    font-weight: 500;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+
+  .line-wrap {
     display: inline-block;
     overflow: hidden;
-    line-height: 0.9;
   }
 
-  .title-char {
+  .line-text {
     display: inline-block;
-    will-change: transform;
-    font-family: var(--font-display, "Mona Sans"), system-ui, sans-serif;
-    font-size: clamp(4rem, 14vw, 16rem);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    color: var(--color-ink);
   }
-
-  .title-space {
-    display: inline-block;
-    width: clamp(1.5rem, 5vw, 6rem);
-  }
-
-
 </style>
