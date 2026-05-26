@@ -17,7 +17,7 @@ export const pl = {
     availableLabel: "Dostępny",
     statuses: ["Pełny etat", "Freelance", "Zdalnie", "Kontrakt"] as const,
     location: "Polska",
-    tagline: ["CODE &", "DESIGN"] as const,
+    tagline: ["THINK_CODE", "DESIGN"] as const,
   },
   about: {
     label: "O mnie",

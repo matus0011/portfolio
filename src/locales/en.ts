@@ -17,7 +17,7 @@ export const en = {
     availableLabel: "Available",
     statuses: ["Full Time", "Freelance", "Remote", "Contract"] as const,
     location: "Poland",
-    tagline: ["CODE &", "DESIGN"] as const,
+    tagline: ["THINK_CODE", "DESIGN"] as const,
   },
   about: {
     label: "About me",

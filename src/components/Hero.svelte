@@ -368,7 +368,7 @@
       class="hero-left opacity-0 invisible col-span-3 relative flex flex-col justify-center z-10"
     >
       <!-- LinkedIn link + location -->
-      <div class="absolute bottom-0 left-0 flex flex-col gap-1">
+      <div class="absolute bottom-0 left-0 flex flex-col gap-[2px]">
       <a
         href="#"
         class="label inline-flex items-center gap-1.5 text-accent transition-colors"
@@ -456,11 +456,11 @@
     >
       <span
         bind:this={overlayTitleLine1El}
-        class="hero-title-line-1 display-mega text-[15vw] md:text-[12vw] select-none pointer-events-none relative text-center"
+        class="hero-title-line-1 display-mega text-[13vw] md:text-[10vw] select-none pointer-events-none relative text-center"
       ></span>
       <span
         bind:this={overlayTitleLine2El}
-        class="hero-title-line-2 display-mega text-[15vw] md:text-[12vw] select-none pointer-events-none relative text-center"
+        class="hero-title-line-2 display-mega text-[13vw] md:text-[10vw] select-none pointer-events-none relative text-center"
       ></span>
     </h1>
   </div>
