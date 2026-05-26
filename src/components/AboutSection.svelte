@@ -74,7 +74,7 @@
   .title-char {
     display: inline-block;
     will-change: transform;
-    font-family: var(--font-display, "Sofia Sans Condensed"), system-ui, sans-serif;
+    font-family: var(--font-display, "Mona Sans"), system-ui, sans-serif;
     font-size: clamp(4rem, 14vw, 16rem);
     font-weight: 900;
     text-transform: uppercase;

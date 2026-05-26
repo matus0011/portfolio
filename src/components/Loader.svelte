@@ -126,7 +126,7 @@
 
       ctx.fillStyle = WHITE;
       const fontSize = Math.min(cellH * 0.55, cellW * 0.6);
-      ctx.font = `500 ${fontSize}px "JetBrains Mono", ui-monospace, monospace`;
+      ctx.font = `500 ${fontSize}px "Mona Sans", sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       for (let r = 0; r < ROWS; r++) {

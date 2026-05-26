@@ -7,9 +7,9 @@
   --color-accent: #FE5030;
   --color-line: #C9C9C9;
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-display: "Sofia Sans Condensed", system-ui, sans-serif;
+  --font-sans: "Mona Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "Mona Sans", ui-monospace, monospace;
+  --font-display: "Mona Sans", system-ui, sans-serif;
 }
 
 @layer base {
@@ -19,6 +19,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     cursor: none;
+    position: relative;
   }
 
   * {
@@ -41,7 +42,15 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: 1.3125rem; /* 21px */
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.display-mega {
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.77;
+  letter-spacing: -0.02em;
 }

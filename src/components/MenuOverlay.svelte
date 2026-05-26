@@ -147,7 +147,7 @@
 
 <style>
   .Menu-nav--marker {
-    font-family: "Sofia Sans Condensed", sans-serif;
+    font-family: "Mona Sans", sans-serif;
     font-size: 150px;
     font-weight: 700;
     line-height: 0.75;

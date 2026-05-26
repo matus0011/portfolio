@@ -86,7 +86,7 @@
 <button
   bind:this={container}
   {onclick}
-  class="label hover:text-accent transition-colors flex items-center gap-3 cursor-pointer p-8 -m-8"
+  class="label text-accent transition-colors flex items-center gap-3 cursor-pointer p-8 -m-8"
   aria-label="More"
 >
   <span bind:this={dotEls[0]} class="w-[10px] h-[10px] rounded-full bg-current inline-block"></span>

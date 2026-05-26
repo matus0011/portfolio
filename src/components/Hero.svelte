@@ -4,8 +4,6 @@
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import MagneticDots from "./MagneticDots.svelte";
-  import HeroTitle from "./HeroTitle.svelte";
-  import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
@@ -46,6 +44,18 @@
   let titleH1El: HTMLHeadingElement;
   let titleSvgDefsEl: SVGDefsElement;
   const titleFilterIdPrefix = `hero-distort-${Math.random().toString(36).slice(2, 9)}`;
+
+  const roles    = $derived([...tr.hero.roles]);
+  const statusSymbols = ["=>", "&&", "fn", "||"];
+
+  let roleEl     = $state<HTMLSpanElement | null>(null);
+
+  let roleIdx   = 0;
+  let cursor    = $state(true);
+
+  const rGen = { v: 0 };
+  const availableGen = { v: 0 };
+  const statusGens = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
 
   // Per-letter filter state: scale grows with proximity to cursor
   // Center (cursor letter) = peak, ±1 = mid, ±2 = light, beyond = clean
@@ -159,12 +169,15 @@
 
   function collectTitleCharsFromDOM() {
     titleChars = [];
-    if (!overlayTitleLine2El) return;
-    overlayTitleLine2El.querySelectorAll(":scope > span").forEach((s) => {
-      const span = s as HTMLSpanElement;
-      span.style.display = "inline-block";
-      span.style.willChange = "filter";
-      titleChars.push(span);
+    const lines = [overlayTitleLine1El, overlayTitleLine2El];
+    lines.forEach((line) => {
+      if (!line) return;
+      line.querySelectorAll(":scope > span").forEach((s) => {
+        const span = s as HTMLSpanElement;
+        span.style.display = "inline-block";
+        span.style.willChange = "filter";
+        titleChars.push(span);
+      });
     });
   }
 
@@ -173,11 +186,9 @@
     if (titleH1El) gsap.set(titleH1El, { opacity: 1 });
 
     let completed = 0;
-    const total = [tr.hero.tagline[0], tr.hero.tagline[1], tr.hero.tagline[2]]
-      .filter(Boolean).length;
     const onLineDone = () => {
       completed++;
-      if (completed === total) {
+      if (completed === 2) {
         // All scrambles settled — wire per-letter hover filters
         collectTitleCharsFromDOM();
         makeLetterFilters();
@@ -188,13 +199,11 @@
       scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen, undefined, " ", 1, onLineDone);
     if (overlayTitleLine2El)
       scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen, undefined, " ", 1, onLineDone);
-    if (overlayTitleLine3El)
-      scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen, undefined, " ", 1, onLineDone);
   }
 
   function initIntro() {
     const elements = document.querySelectorAll(
-      ".hero-nav, .hero-left, .hero-mouse-info",
+      ".hero-nav, .hero-left",
     );
     elements.forEach((el) => el.classList.remove("invisible"));
 
@@ -208,11 +217,6 @@
         ".hero-left",
         { y: [25, 0], opacity: [0, 1] },
         { duration: 1.2, ease: "easeOut", at: "-1.0" },
-      ],
-      [
-        ".hero-mouse-info",
-        { y: [25, 0], opacity: [0, 1] },
-        { duration: 1.2, ease: "easeOut", at: "-0.85" },
       ],
     ]);
 
@@ -253,6 +257,29 @@
       window.addEventListener("loaderFinished", initIntro, { once: true });
     }
 
+    // Blinking cursor
+    const cursorInterval = setInterval(() => {
+      cursor = !cursor;
+    }, 530);
+
+    // Words rotation
+    let wordInterval: any;
+    const initTitleAnimations = () => {
+      if (!roleEl) return;
+      scrambleTo(roleEl, roles[0], rGen);
+
+      wordInterval = setInterval(() => {
+        roleIdx = (roleIdx + 1) % roles.length;
+        if (roleEl) scrambleTo(roleEl, roles[roleIdx], rGen);
+      }, 10000);
+    };
+
+    if ((window as any).loaderDone) {
+      initTitleAnimations();
+    } else {
+      window.addEventListener("loaderFinished", initTitleAnimations, { once: true });
+    }
+
     let lastTime = getTime();
     if (timeEl) scrambleTo(timeEl, lastTime, tGen, DIGIT_CHARS, ": ");
     const clockInterval = setInterval(() => {
@@ -287,7 +314,10 @@
 
     return () => {
       clearInterval(clockInterval);
+      clearInterval(cursorInterval);
+      if (wordInterval) clearInterval(wordInterval);
       window.removeEventListener("loaderFinished", initIntro);
+      window.removeEventListener("loaderFinished", initTitleAnimations);
       cancelAnimationFrame(hoverFrame);
       if (titleH1El) {
         titleH1El.removeEventListener("mousemove", onTitleMouseMove);
@@ -303,11 +333,33 @@
   class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
 >
   <!-- TOP NAV -->
-  <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
-    <HeroTitle {lang} />
+  <nav class="hero-nav opacity-0 invisible flex items-start justify-between">
+    <div class="text-accent flex flex-col gap-0" style="font-family: var(--font-display)">
+      <div
+        class="label flex items-center gap-1 cursor-default pointer-events-auto"
+        style="font-size: 18px; line-height: 0.95;"
+        onmouseenter={(e) => scrambleTo(e.currentTarget.querySelector('.status-text') as HTMLElement, tr.hero.availableLabel, availableGen)}
+      >
+        <span>[</span>
+        <span class="status-text">{tr.hero.availableLabel}</span>
+        <span>]</span>
+      </div>
+      {#each tr.hero.statuses as status, i}
+        <div
+          class="label flex items-center gap-1.5 opacity-90 cursor-default pointer-events-auto"
+          style="font-size: 18px; line-height: 0.95;"
+          onmouseenter={(e) => scrambleTo(e.currentTarget.querySelector('.status-text') as HTMLElement, status, statusGens[i])}
+        >
+          <span class="font-mono">{statusSymbols[i] || "=>"}</span>
+          <span class="status-text">{status}</span>
+        </div>
+      {/each}
+    </div>
 
     <MagneticDots onclick={() => (ui.menuOpen = true)} />
   </nav>
+
+
 
   <!-- MAIN GRID -->
   <div class="flex-1 grid grid-cols-12 gap-6 mt-2">
@@ -319,7 +371,7 @@
       <div class="absolute bottom-0 left-0 flex flex-col gap-1">
       <a
         href="#"
-        class="label inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+        class="label inline-flex items-center gap-1.5 text-accent transition-colors"
         onmouseenter={() =>
           scrambleTo(
             linkedinTextEl,
@@ -345,7 +397,7 @@
           <path d="m7 17 10-10" />
         </svg>
       </a>
-      <div class="label flex items-center gap-1.5">
+      <div class="label flex items-center gap-1.5 text-accent">
         <span>{tr.hero.location}</span>
         <span class="opacity-40">·</span>
         <span bind:this={timeEl}></span>
@@ -358,9 +410,29 @@
     <div class="col-span-9 pointer-events-none"></div>
   </div>
 
-  <!-- BOTTOM RIGHT — MouseInfo -->
-  <div class="absolute bottom-6 right-8 md:bottom-8 md:right-12 z-10">
-    <MouseInfo />
+
+  <!-- BOTTOM CENTER — Prefix & Roles -->
+  <div
+    class="hero-left opacity-0 invisible absolute bottom-2 left-1/2 -translate-x-1/2 md:bottom-3 z-10 text-center flex flex-col items-center gap-0"
+    style="font-family: var(--font-display)"
+  >
+    <div class="label" style="font-size: 42px; font-weight: 600; line-height: 0.95;">{tr.hero.prefix}</div>
+    <div class="label text-accent font-mono tracking-normal" style="font-size: 56px; font-weight: 600; line-height: 0.95;" bind:this={roleEl}></div>
+    <div class="label flex items-center justify-center gap-1.5" style="font-size: 42px; font-weight: 600; line-height: 0.95;">
+      <span>{tr.hero.roleLabel}</span>
+    </div>
+  </div>
+
+  <!-- BOTTOM RIGHT — Scroll Prompt -->
+  <div
+    class="hero-left opacity-0 invisible absolute bottom-6 right-8 md:bottom-8 md:right-12 z-10 text-accent"
+    style="font-size: 21px;"
+  >
+    <div class="label flex items-center gap-1">
+      <span>[</span>
+      <span>SCROLL TO EXPLORE</span>
+      <span>]</span>
+    </div>
   </div>
 
   <!-- Center Titles Overlay -->
@@ -380,19 +452,15 @@
     <h1
       bind:this={titleH1El}
       class="hero-title text-ink select-none w-full pointer-events-auto cursor-default"
-      style="will-change: opacity;"
+      style="will-change: opacity; transform: translateY(-100px);"
     >
       <span
         bind:this={overlayTitleLine1El}
-        class="hero-title-line-1 text-right"
+        class="hero-title-line-1 display-mega text-[15vw] md:text-[12vw] select-none pointer-events-none relative text-center"
       ></span>
       <span
         bind:this={overlayTitleLine2El}
-        class="hero-title-line-2 text-center"
-      ></span>
-      <span
-        bind:this={overlayTitleLine3El}
-        class="hero-title-line-3 text-left"
+        class="hero-title-line-2 display-mega text-[15vw] md:text-[12vw] select-none pointer-events-none relative text-center"
       ></span>
     </h1>
   </div>
@@ -405,33 +473,7 @@
     grid-template-columns: max-content;
     justify-content: center;
     line-height: 0.85;
-    gap: 1vw;
+    gap: 3vw;
   }
-  /* BUILDING — JetBrains Mono uppercase tracked-out, mirrors EXPERIENCES */
-  .hero-title-line-1 {
-    font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, monospace;
-    font-size: clamp(1.4rem, 4vw, 5rem);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    line-height: 1;
-  }
-  /* DIGITAL — Sofia Sans Condensed Black uppercase, the dominant focal point */
-  .hero-title-line-2 {
-    font-family: var(--font-display, "Sofia Sans Condensed"), system-ui, sans-serif;
-    font-size: clamp(5rem, 22vw, 26rem);
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 0.82;
-  }
-  /* EXPERIENCES — JetBrains Mono uppercase, tracked-out, techy contrast */
-  .hero-title-line-3 {
-    font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, monospace;
-    font-size: clamp(1.4rem, 4vw, 5rem);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    line-height: 1;
-  }
+
 </style>
