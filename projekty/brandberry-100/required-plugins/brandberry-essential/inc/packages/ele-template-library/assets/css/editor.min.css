@@ -1,0 +1,8 @@
+.elementor-editor-active .elementor-add-section-area-button.elementor-add-vendy-template-button {
+    background-image: url(../logo-icon.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: relative;
+    background-size: 75%;
+        background-color: #15ce4e;
+}

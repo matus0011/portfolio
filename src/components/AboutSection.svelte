@@ -1,12 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { gsap } from "gsap";
-  import { ScrollTrigger } from "gsap/ScrollTrigger";
-  import { t, type Lang } from "../locales";
-
-  let { initialLang = "pl" as Lang } = $props();
-  const lang = $derived(initialLang as Lang);
-  const tr = $derived(t(lang));
+  import gsap from "gsap";
 
   let sectionEl: HTMLElement;
 
@@ -14,8 +8,6 @@
   let charInners: HTMLElement[] = [];
 
   onMount(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
     // Filtruj undefined (spacja nie ma bind:this)
     const chars = charInners.filter(Boolean);
 
@@ -61,15 +53,6 @@
 
 </section>
 
-<!-- Czarna sekcja -->
-<div class="about-dark-section">
-  <p class="about-dark-fake">
-    Projektuję i buduję rzeczy, które mają znaczenie — od interfejsów po systemy. Każda linia kodu to decyzja.
-  </p>
-  <p class="about-dark-fake mute">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
-  </p>
-</div>
 
 <style>
   /* ── Big title ───────────────────────────────────────────── */
@@ -104,30 +87,5 @@
     width: clamp(1.5rem, 5vw, 6rem);
   }
 
-  /* ── Dark section ────────────────────────────────────────── */
-  .about-dark-section {
-    background: var(--color-ink);
-    color: var(--color-bg);
-    min-height: 100vh;
-    width: 100%;
-    padding: 8rem 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .about-dark-fake {
-    font-family: var(--font-sans, "Inter"), system-ui, sans-serif;
-    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
-    line-height: 1.5;
-    font-weight: 400;
-  }
-
-  .about-dark-fake.mute {
-    opacity: 0.35;
-    font-size: clamp(1rem, 1.5vw, 1.3rem);
-  }
 
 </style>

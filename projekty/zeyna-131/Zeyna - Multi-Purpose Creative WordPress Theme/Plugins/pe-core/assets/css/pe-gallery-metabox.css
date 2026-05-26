@@ -1,0 +1,28 @@
+.pe-gallery-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    list-style: none;
+    padding: 0;
+}
+.pe-gallery-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+.pe-gallery-item img {
+    width: 100%;
+    height: auto;
+}
+.pe-remove-image {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f44336;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 2px 6px;
+}

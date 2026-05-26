@@ -1,0 +1,540 @@
+.canvas {
+    position: relative;
+    /* max-width: 32rem;
+    aspect-ratio: 1/1; */
+    width: 100%;
+    height: 300px;
+    background: #fff
+}
+
+.canvas__svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+i.pe-widget::after {
+    content: "PE";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 11px;
+    font-family: var(--e-a-font-family);
+    padding: 5px;
+    border-right: var(--e-a-border-bold);
+    border-bottom: var(--e-a-border-bold)
+}
+
+
+.elementor-control.elementor-control-transform_origin .elementor-choices {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    height: auto;
+    width: auto;
+}
+
+
+.elementor-control.elementor-control-transform_origin {
+    width: 50%;
+    float: left;
+}
+
+.elementor-control.elementor-control-start_scale {
+    width: 50%;
+    float: left;
+    padding-left: 0;
+    margin-top: 1em;
+}
+
+.elementor-control.elementor-control-end_scale {
+    width: 50%;
+    float: left;
+    padding-left: 0;
+}
+
+.elementor-control.elementor-control-ia_more_options {
+    width: 100%;
+    float: left;
+    margin-top: 1em;
+}
+
+.elementor-control-type-choose.elementor-label-block .elementor-choices>label {
+    height: 2em;
+}
+
+.elementor-control.elementor-control-inner_scale {
+    width: 100%;
+    float: left;
+}
+
+.elementor-control-background_color {
+    /* display: none; */
+}
+
+
+
+#elementor-panel-elements .elementor-element-wrapper:has(.pe--lt--widget),
+.elementor-panel-category-items .elementor-element-wrapper:has(.pe--lt--widget) {
+    display: none;
+}
+
+.elementor-editor-pe-loader-transitions #elementor-panel-elements .elementor-element-wrapper:has(.pe--lt--widget),
+.elementor-editor-pe-loader-transitions .elementor-panel-category-items .elementor-element-wrapper:has(.pe--lt--widget) {
+    display: block;
+}
+
+.elementor-control.elementor-control-get_widget_state,
+.elementor-control.elementor-control-widget_header_visibility {
+    display: none;
+}
+
+.elementor-editor-pe-header .elementor-control.elementor-control-get_widget_state,
+.elementor-editor-pe-header .elementor-control.elementor-control-widget_header_visibility {
+    display: block;
+}
+
+
+.elementor-control-loader_transition_animations {
+    display: none;
+}
+
+.elementor-editor-pe-loader-transitions .elementor-control-loader_transition_animations {
+    display: block;
+}
+
+
+.elementor-control:has(label.elementor-choices-label[data-tooltip=Marquee]) .elementor-choices label {
+    background-size: 95%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Rounded] {
+    background-image: url(../img/button_rounded_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Simple] {
+    background-image: url(../img/button_simple_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Underlined] {
+    background-image: url(../img/button_underlined_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Background] {
+    background-image: url(../img/button_background_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Bordered] {
+    background-image: url(../img/button_bordered_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Seperated] {
+    background-image: url(../img/button_seperated_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Stylized] {
+    background-image: url(../img/button_stylized_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Covered] {
+    background-image: url(../img/button_covered_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Sharp] {
+    background-image: url(../img/button_sharp_icon.png);
+}
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Marquee] {
+    background-image: url(../img/button_marquee_icon.png);
+}
+
+
+.elementor-choices label.elementor-choices-label[data-tooltip=Framed] {
+    background-image: url(../img/button_framed_icon.png);
+}
+
+
+.elementor-control-type-choose:has(label.elementor-choices-label[data-tooltip=Marquee]) .elementor-choices {
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: auto;
+    gap: 6px;
+    justify-content: space-between;
+    height: auto;
+}
+
+.elementor-control-type-choose:has(label.elementor-choices-label[data-tooltip=Marquee]) .elementor-choices label {
+    display: block !important;
+    width: 48% !important;
+    flex: auto !important;
+    height: 6em;
+    border: 1px solid #323232;
+}
+
+i.pe-icon-spline.pe-widget {
+    height: 1em;
+    display: block;
+    width: auto;
+    font-size: 28px;
+}
+
+i.pe-icon-spline.pe-widget::before {
+    content: "";
+    display: block;
+    background-image: url(../img/spline_logo.png);
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+}
+
+.elementor-navigator__element__element-type i.pe-icon-spline.pe-widget::before {
+    width: 14px;
+}
+
+.elementor-control-sub_items .elementor-control-field {
+    flex-direction: column;
+    width: 100%;
+    align-items: start;
+    gap: 10px;
+}
+
+.nested-sub-item {
+    width: 100%;
+    display: block;
+}
+
+.nested-repeater-wrapper.ui-sortable {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nested-repeater-wrapper.ui-sortable .nested-sub-item {
+    display: flex;
+    gap: 5px;
+}
+
+button.remove-sub-item.elementor-repeater-row-tool.elementor-repeater-tool-remove {
+    width: 30px;
+    font-size: 8px;
+}
+
+button.remove-sub-item.elementor-repeater-row-tool.elementor-repeater-tool-remove {
+    width: 30px;
+    font-size: 8px;
+}
+
+button.elementor-button.button.add-sub-item {
+    width: fit-content;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding: 5px 15px;
+}
+
+.nested-repeater-wrapper.ui-sortable .nested-sub-item>i {
+    display: block;
+    line-height: 1;
+    align-self: center;
+    cursor: grab;
+}
+
+
+.text-h1.md-title::before,
+h1.md-title::before {
+    content: '' !important;
+}
+
+
+.elementor-control-paragraph_size [data-tooltip=Medium] i,
+.elementor-control-paragraph_size [data-tooltip=Small] i {
+    font-size: 10px;
+}
+
+
+.elementor-control-object_preferences_json pre.ace_editor,
+.elementor-control-animations_json pre.ace_editor {
+    height: 400px !important;
+    overflow: hidden;
+}
+
+/* Template Import  */
+
+
+.dialog-widget-content.dialog-lightbox-widget-content {
+    width: 100%;
+    max-width: 1400px;
+}
+
+.pe--template--library--wrap {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    height: 100%;
+}
+
+.pe--template--library--wrap .ptl--sidebar {
+    width: 20%;
+    border-right: 1px solid rgb(255 255 255 / 5%);
+}
+
+.pe--template--library--wrap .ptl--content {
+    width: 80%;
+}
+
+#pe-template-library .dialog-message {
+    padding: 20px;
+    border-top: 1px solid rgb(255 255 255 / 5%);
+    padding-top: 0;
+    padding-left: 0;
+    height: 850px;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+.ptl--sidebar,
+.ptl--content {
+    height: 850px;
+    max-height: 90vh;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+#pe-template-library span.elementor-templates-modal__header__logo__icon-wrapper.e-logo-wrapper img {
+    width: 120px;
+}
+
+#pe-template-library .elementor-templates-modal__header {
+    margin-top: 7px;
+}
+
+#pe-template-library .elementor-templates-modal__header__logo-area,
+.elementor-templates-modal__header__items-area {
+    width: 25%;
+}
+
+#pe-template-library .elementor-templates-modal__header__menu-area {
+    width: 50%;
+}
+
+#pe-template-library .elementor-template-library-menu-item {
+    width: 30%;
+    font-size: 14px;
+}
+
+#pe-template-library .elementor-template-library-menu-item.elementor-active {
+    background: #ffffff0f;
+    border: none;
+}
+
+
+.ptl--actions.elementor-template-library-template-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: auto;
+    bottom: 0 !important;
+    top: unset !important;
+    padding: 5px;
+    background-color: transparent !important;
+    background: linear-gradient(0deg, rgb(0 0 0 / 66%) 0%, rgb(255 255 255 / 0%) 100%);
+}
+
+.ptl--actions.elementor-template-library-template-preview i.eicon-library-download {
+    position: static;
+    transform: none;
+    margin: 0;
+    font-size: 14px;
+}
+
+.ptl--actions.elementor-template-library-template-preview a.elementor-template-library-template-action.pe--template--insert.elementor-template-library-template-insert.elementor-button.e-primary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+}
+
+
+.ptl--template-footer {
+    padding: 10px 5px 5px 5px;
+}
+
+span.elementor-templates-modal__header__logo__title {
+    font-weight: normal;
+    text-transform: none;
+}
+
+#pe-template-library div#elementor-template-library-header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 5px;
+    font-size: 11px;
+    opacity: .4;
+}
+
+#pe-template-library .elementor-templates-modal__header__close.elementor-templates-modal__header__close--normal.elementor-templates-modal__header__item {
+    border: none;
+}
+
+#pe-template-library .elementor-templates-modal__header__items-area {
+    align-items: start;
+}
+
+#pe-template-library .ptl--filters ul {
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+#pe-template-library .ptl--filters ul li {
+    line-height: 1;
+    padding: 12.5px 10px 12.5px 20px;
+    border-bottom: 1px solid rgb(255 255 255 / 5%);
+    cursor: pointer;
+    transition: opacity .4s ease
+}
+
+#pe-template-library .ptl--filters ul:has(li.active) li:not(.active),
+#pe-template-library .ptl--filters ul:has(li:hover) li:not(:hover) {
+    opacity: .4
+}
+
+#pe-template-library .ptl--filters ul li span.cat-count {
+    opacity: .25;
+    font-size: 12px;
+    line-height: 1;
+    float: right;
+}
+
+#pe-template-library div#elementor-template-library-templates {
+    height: 100%;
+}
+
+#pe-template-library .pe-popup-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+#pe-template-library .pe-popup-loading i {
+    transform-origin: center center;
+    animation-name: loading;
+    animation-duration: 2s;
+    animation-play-state: running;
+    animation-iteration-count: infinite;
+    font-size: 30px;
+
+}
+
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.pe--template--disable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .7);
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s ease;
+}
+
+#pe-template-library:has(.inserting) .pe--template--disable {
+    opacity: 1;
+    pointer-events: all;
+}
+
+
+.ptl--template-title {
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ptl--template-title span.ptl--template-demo {
+    font-size: 11px;
+    text-transform: uppercase;
+    opacity: .5;
+    font-family: monospace;
+}
+
+
+.ptl--template.ptl--block.ptl--header.elementor-template-library-template.elementor-template-library-template-remote.elementor-template-library-template-block {
+    width: calc(66.666% - 30px);
+}
+
+.pe--template--library--wrap:has(li[data-fetch="header"].active) .ptl--template.ptl--block.ptl--header.elementor-template-library-template.elementor-template-library-template-remote.elementor-template-library-template-block {
+    width: 100%;
+}
+
+#elementor-panel-state-loading {
+    display: none !important;
+}
+
+.pe--template--library--wrap div#elementor-template-library-templates-container {
+    display: block !important;
+    margin: 0 !important;
+}
+
+a.ptl--button.ptl--preview {
+    color: #fff;
+    margin-right: 10px;
+    font-size: 12px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center
+}
+
+a.ptl--button.ptl--preview i {
+    position: static;
+    display: block;
+    transform: rotate(-45deg);
+    font-size: 12px;
+    line-height: 1em
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Template Import  */

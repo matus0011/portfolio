@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import CustomCursor from "../components/CustomCursor.svelte";
 import Loader from "../components/Loader.svelte";
-import Sphere from "../components/Sphere.svelte";
 import MenuOverlay from "../components/MenuOverlay.svelte";
 
 interface Props {
@@ -40,7 +39,6 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
   <body>
     <Loader client:load minDuration={1500} />
     <CustomCursor client:load />
-    <Sphere client:load />
     <slot />
     <MenuOverlay client:load {lang} />
   </body>
