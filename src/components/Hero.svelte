@@ -17,16 +17,8 @@
   const lang = $derived(initialLang as Lang);
   const tr = $derived(t(lang));
 
-  const navRight = $derived([
-    { label: tr.nav.projects, href: "#" },
-    { label: tr.nav.about, href: "#" },
-    { label: tr.nav.contact, href: "#" },
-  ]);
-
-  const navGens = [{ v: 0 }, { v: 0 }, { v: 0 }];
   const linkedinGen = { v: 0 };
   let linkedinTextEl: HTMLSpanElement;
-  let navTextEls: HTMLSpanElement[] = [];
 
   function getTime() {
     return new Date().toLocaleTimeString("pl-PL", {
@@ -316,30 +308,7 @@
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
     <HeroTitle {lang} />
 
-    <ul class="flex items-center gap-10">
-      {#each navRight as item, i (item.label)}
-        <li>
-          <a
-            href={item.href}
-            class="label hover:text-accent transition-colors inline-flex items-center gap-1.5"
-            onmouseenter={() =>
-              scrambleTo(
-                navTextEls[i],
-                item.label,
-                navGens[i],
-                undefined,
-                undefined,
-                2,
-              )}
-          >
-            <span bind:this={navTextEls[i]}>{item.label}</span>
-          </a>
-        </li>
-      {/each}
-      <li>
-        <MagneticDots onclick={() => (ui.menuOpen = true)} />
-      </li>
-    </ul>
+    <MagneticDots onclick={() => (ui.menuOpen = true)} />
   </nav>
 
   <!-- MAIN GRID -->
