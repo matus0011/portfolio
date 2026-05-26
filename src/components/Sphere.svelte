@@ -34,7 +34,7 @@
   style="opacity: 0"
 >
   <div class="sphere-box">
-    <SphereScene {targetOpacity} morphProgress={ui.morphProgress} />
+    <SphereScene {targetOpacity} />
   </div>
 </div>
 

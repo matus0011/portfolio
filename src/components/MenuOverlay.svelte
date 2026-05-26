@@ -147,7 +147,7 @@
 
 <style>
   .Menu-nav--marker {
-    font-family: "Bricolage Grotesque", sans-serif;
+    font-family: "Sofia Sans Condensed", sans-serif;
     font-size: 150px;
     font-weight: 700;
     line-height: 0.75;

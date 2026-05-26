@@ -6,19 +6,12 @@
   import wobbleVertexShader from "../shaders/wobble/vertex.glsl";
   import wobbleFragmentShader from "../shaders/wobble/fragment.glsl";
 
-  let {
-    targetOpacity = 0.3,
-    morphProgress = 0,
-  }: { targetOpacity?: number; morphProgress?: number } = $props();
+  let { targetOpacity = 0.3 }: { targetOpacity?: number } = $props();
 
   let _targetOpacity = $state(0.3);
-  let _targetMorph = $state(0);
 
   $effect(() => {
     _targetOpacity = targetOpacity;
-  });
-  $effect(() => {
-    _targetMorph = morphProgress;
   });
 
   let canvasEl: HTMLCanvasElement;
@@ -96,7 +89,6 @@
       uWarpPositionFrequency: new THREE.Uniform(0.38),
       uWarpTimeFrequency: new THREE.Uniform(0.12),
       uWarpStrength: new THREE.Uniform(1.7),
-      uMorph: new THREE.Uniform(0),
       uColorA: new THREE.Uniform(new THREE.Color(debugObject.colorA)),
       uColorB: new THREE.Uniform(new THREE.Color(debugObject.colorB)),
     };
@@ -162,7 +154,6 @@
       uniforms.uTime.value = elapsed;
 
       material.opacity = THREE.MathUtils.lerp(material.opacity, _targetOpacity, 0.06);
-      uniforms.uMorph.value = THREE.MathUtils.lerp(uniforms.uMorph.value, _targetMorph, 0.12);
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);

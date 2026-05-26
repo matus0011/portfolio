@@ -7,7 +7,7 @@
   import HeroTitle from "./HeroTitle.svelte";
   import MouseInfo from "./MouseInfo.svelte";
   import { t, type Lang } from "../locales";
-  import { scrambleTo, splitChars, DIGIT_CHARS } from "../utils/scramble";
+  import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
 
   let heroSectionEl: HTMLElement;
@@ -47,93 +47,159 @@
   let overlayTitleLine1El: HTMLSpanElement;
   let overlayTitleLine2El: HTMLSpanElement;
   let overlayTitleLine3El: HTMLSpanElement;
+  const overlayTitleLine1Gen = { v: 0 };
+  const overlayTitleLine2Gen = { v: 0 };
+  const overlayTitleLine3Gen = { v: 0 };
   let titleChars: HTMLSpanElement[] = [];
   let titleH1El: HTMLHeadingElement;
-  let titleTurbEl: SVGFETurbulenceElement;
-  let titleDisplEl: SVGFEDisplacementMapElement;
-  let dropScrollTrigger: ScrollTrigger | null = null;
-  const titleFilterId = `hero-distort-${Math.random().toString(36).slice(2, 9)}`;
+  let titleSvgDefsEl: SVGDefsElement;
+  const titleFilterIdPrefix = `hero-distort-${Math.random().toString(36).slice(2, 9)}`;
 
-  // Hover distortion target (matches About peak look)
-  const TITLE_FILTER_FREQ_HOVER = 0.022;
-  const TITLE_FILTER_SCALE_HOVER = 28;
-  const titleFilterState = { freq: 0.005, scale: 0 };
+  // Per-letter filter state: scale grows with proximity to cursor
+  // Center (cursor letter) = peak, ±1 = mid, ±2 = light, beyond = clean
+  const HOVER_INTENSITY = [28]; // only the letter under cursor
+  const HOVER_FREQ = 0.022;
+  const HOVER_DURATION = 0.45;
 
-  function applyTitleFilter() {
-    if (titleTurbEl)
-      titleTurbEl.setAttribute("baseFrequency", String(titleFilterState.freq));
-    if (titleDisplEl)
-      titleDisplEl.setAttribute("scale", String(titleFilterState.scale));
-  }
+  type LetterFilter = {
+    span: HTMLSpanElement;
+    turbEl: SVGFETurbulenceElement;
+    displEl: SVGFEDisplacementMapElement;
+    state: { freq: number; scale: number };
+  };
+  let letterFilters: LetterFilter[] = [];
 
-  function onTitleHoverEnter() {
-    gsap.to(titleFilterState, {
-      freq: TITLE_FILTER_FREQ_HOVER,
-      scale: TITLE_FILTER_SCALE_HOVER,
-      duration: 0.55,
-      ease: "power2.out",
-      onUpdate: applyTitleFilter,
-      overwrite: true,
+  function makeLetterFilters() {
+    if (!titleSvgDefsEl) return;
+    // Clear any previous filters
+    titleSvgDefsEl.innerHTML = "";
+    letterFilters = [];
+
+    titleChars.forEach((span, i) => {
+      const filterId = `${titleFilterIdPrefix}-${i}`;
+      const NS = "http://www.w3.org/2000/svg";
+      const filter = document.createElementNS(NS, "filter");
+      filter.setAttribute("id", filterId);
+      filter.setAttribute("x", "-20%");
+      filter.setAttribute("y", "-20%");
+      filter.setAttribute("width", "140%");
+      filter.setAttribute("height", "140%");
+
+      const turb = document.createElementNS(NS, "feTurbulence");
+      turb.setAttribute("type", "fractalNoise");
+      turb.setAttribute("baseFrequency", "0.005");
+      turb.setAttribute("numOctaves", "2");
+      turb.setAttribute("seed", String(7 + i));
+      turb.setAttribute("result", "turb");
+      filter.appendChild(turb);
+
+      const displ = document.createElementNS(NS, "feDisplacementMap");
+      displ.setAttribute("in", "SourceGraphic");
+      displ.setAttribute("in2", "turb");
+      displ.setAttribute("scale", "0");
+      filter.appendChild(displ);
+
+      titleSvgDefsEl.appendChild(filter);
+
+      span.style.filter = `url(#${filterId})`;
+      span.style.willChange = "filter";
+
+      letterFilters.push({
+        span,
+        turbEl: turb as SVGFETurbulenceElement,
+        displEl: displ as SVGFEDisplacementMapElement,
+        state: { freq: 0.005, scale: 0 },
+      });
     });
   }
-  function onTitleHoverLeave() {
-    gsap.to(titleFilterState, {
-      freq: 0.005,
-      scale: 0,
-      duration: 0.55,
-      ease: "power2.out",
-      onUpdate: applyTitleFilter,
-      overwrite: true,
+
+  function applyLetterFilter(lf: LetterFilter) {
+    lf.turbEl.setAttribute("baseFrequency", String(lf.state.freq));
+    lf.displEl.setAttribute("scale", String(lf.state.scale));
+  }
+
+  function setLetterTargets(centerIdx: number) {
+    letterFilters.forEach((lf, i) => {
+      const dist = centerIdx < 0 ? Infinity : Math.abs(i - centerIdx);
+      const scale = dist < HOVER_INTENSITY.length ? HOVER_INTENSITY[dist] : 0;
+      const freq = scale > 0 ? HOVER_FREQ : 0.005;
+      gsap.to(lf.state, {
+        scale,
+        freq,
+        duration: HOVER_DURATION,
+        ease: "power2.out",
+        onUpdate: () => applyLetterFilter(lf),
+        overwrite: "auto",
+      });
     });
   }
 
-  function setupTitleDropScrub() {
-    if (!titleChars.length || !heroSectionEl) return;
-    if (dropScrollTrigger) {
-      dropScrollTrigger.kill();
-      dropScrollTrigger = null;
+  function findHoveredCharIndex(clientX: number, clientY: number): number {
+    // Direct pointer test — each span has its own bounding box
+    for (let i = 0; i < letterFilters.length; i++) {
+      const r = letterFilters[i].span.getBoundingClientRect();
+      if (
+        clientX >= r.left &&
+        clientX <= r.right &&
+        clientY >= r.top &&
+        clientY <= r.bottom
+      ) {
+        return i;
+      }
     }
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: heroSectionEl,
-        start: "top top",
-        end: "bottom top",
-        scrub: 1,
-      },
+    return -1;
+  }
+
+  let lastHoverIdx = -2;
+  function onTitleMouseMove(e: MouseEvent) {
+    const idx = findHoveredCharIndex(e.clientX, e.clientY);
+    if (idx !== lastHoverIdx) {
+      lastHoverIdx = idx;
+      setLetterTargets(idx);
+    }
+  }
+  function onTitleMouseLeave() {
+    if (lastHoverIdx !== -1) {
+      lastHoverIdx = -1;
+      setLetterTargets(-1);
+    }
+  }
+
+  function collectTitleCharsFromDOM() {
+    titleChars = [];
+    [overlayTitleLine1El, overlayTitleLine2El, overlayTitleLine3El].forEach((parent) => {
+      if (!parent) return;
+      parent.querySelectorAll(":scope > span").forEach((s) => {
+        const span = s as HTMLSpanElement;
+        span.style.display = "inline-block";
+        span.style.willChange = "filter";
+        titleChars.push(span);
+      });
     });
-    tl.to(titleChars, {
-      yPercent: 110,
-      opacity: 0,
-      stagger: { each: 0.04, from: "start" },
-      ease: "none",
-    });
-    dropScrollTrigger = tl.scrollTrigger ?? null;
   }
 
   function runTitleIntro() {
-    titleChars = [];
-    if (overlayTitleLine1El)
-      titleChars.push(...splitChars(overlayTitleLine1El, tr.hero.tagline[0]));
-    if (overlayTitleLine2El)
-      titleChars.push(...splitChars(overlayTitleLine2El, tr.hero.tagline[1]));
-    if (overlayTitleLine3El)
-      titleChars.push(...splitChars(overlayTitleLine3El, tr.hero.tagline[2]));
-
-    // Make sure h1 is visible (in case a previous scrub left it at opacity 0)
+    // Make sure h1 is visible
     if (titleH1El) gsap.set(titleH1El, { opacity: 1 });
 
-    gsap.fromTo(
-      titleChars,
-      { yPercent: 110, opacity: 0 },
-      {
-        yPercent: 0,
-        opacity: 1,
-        duration: 0.7,
-        stagger: 0.04,
-        ease: "power3.out",
-        onComplete: () => setupTitleDropScrub(),
-      },
-    );
+    let completed = 0;
+    const total = [tr.hero.tagline[0], tr.hero.tagline[1], tr.hero.tagline[2]]
+      .filter(Boolean).length;
+    const onLineDone = () => {
+      completed++;
+      if (completed === total) {
+        // All scrambles settled — wire per-letter hover filters
+        collectTitleCharsFromDOM();
+        makeLetterFilters();
+      }
+    };
+
+    if (overlayTitleLine1El)
+      scrambleTo(overlayTitleLine1El, tr.hero.tagline[0], overlayTitleLine1Gen, undefined, " ", 1, onLineDone);
+    if (overlayTitleLine2El)
+      scrambleTo(overlayTitleLine2El, tr.hero.tagline[1], overlayTitleLine2Gen, undefined, " ", 1, onLineDone);
+    if (overlayTitleLine3El)
+      scrambleTo(overlayTitleLine3El, tr.hero.tagline[2], overlayTitleLine3Gen, undefined, " ", 1, onLineDone);
   }
 
   function initIntro() {
@@ -217,29 +283,15 @@
         scrub: true,
         onUpdate: (self) => {
           ui.heroScrollProgress = self.progress;
-
-          // Sphere morph burst: ramp 0.65→0.85, decay 0.85→1.0
-          const p = self.progress;
-          let morph = 0;
-          if (p > 0.65 && p < 1.0) {
-            if (p < 0.85) {
-              const t = (p - 0.65) / 0.2;
-              morph = t * t * (3 - 2 * t); // smoothstep
-            } else {
-              const t = (p - 0.85) / 0.15;
-              morph = 1 - t * t * (3 - 2 * t);
-            }
-          }
-          ui.morphProgress = morph;
         },
       });
     }, heroSectionEl);
 
-    // Bind hover handlers on title (h1 ref may not exist immediately on first paint)
+    // Bind per-letter hover handlers
     const hoverFrame = requestAnimationFrame(() => {
       if (titleH1El) {
-        titleH1El.addEventListener("mouseenter", onTitleHoverEnter);
-        titleH1El.addEventListener("mouseleave", onTitleHoverLeave);
+        titleH1El.addEventListener("mousemove", onTitleMouseMove);
+        titleH1El.addEventListener("mouseleave", onTitleMouseLeave);
       }
     });
 
@@ -248,8 +300,8 @@
       window.removeEventListener("loaderFinished", initIntro);
       cancelAnimationFrame(hoverFrame);
       if (titleH1El) {
-        titleH1El.removeEventListener("mouseenter", onTitleHoverEnter);
-        titleH1El.removeEventListener("mouseleave", onTitleHoverLeave);
+        titleH1El.removeEventListener("mousemove", onTitleMouseMove);
+        titleH1El.removeEventListener("mouseleave", onTitleMouseLeave);
       }
       ctx.revert();
     };
@@ -346,44 +398,73 @@
 
   <!-- Center Titles Overlay -->
   <div
-    class="hero-title-overlay absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center select-none"
+    class="hero-title-overlay absolute inset-0 flex flex-col items-stretch justify-center pointer-events-none z-10 select-none px-8 md:px-12"
   >
-    <!-- SVG filter defs for distortion -->
+    <!-- SVG filter defs — populated at runtime, one filter per letter -->
     <svg
       aria-hidden="true"
       width="0"
       height="0"
       style="position:absolute;width:0;height:0;pointer-events:none"
     >
-      <defs>
-        <filter id={titleFilterId} x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence
-            bind:this={titleTurbEl}
-            type="fractalNoise"
-            baseFrequency="0.005"
-            numOctaves="2"
-            seed="7"
-            result="turb"
-          />
-          <feDisplacementMap
-            bind:this={titleDisplEl}
-            in="SourceGraphic"
-            in2="turb"
-            scale="0"
-          />
-        </filter>
-      </defs>
+      <defs bind:this={titleSvgDefsEl}></defs>
     </svg>
 
     <h1
       bind:this={titleH1El}
-      class="text-[16vw] md:text-[14vw] lg:text-[12vw] font-black uppercase tracking-wider text-ink select-none flex flex-col items-center justify-center gap-0 leading-[0.92] pointer-events-auto cursor-default"
-      style="font-family: var(--font-display); filter: url(#{titleFilterId}); will-change: filter, opacity;"
+      class="hero-title text-ink select-none w-full pointer-events-auto cursor-default"
+      style="will-change: opacity;"
     >
-      <span bind:this={overlayTitleLine1El}></span>
-      <span bind:this={overlayTitleLine2El}></span>
-      <span bind:this={overlayTitleLine3El}></span>
+      <span
+        bind:this={overlayTitleLine1El}
+        class="hero-title-line-1 text-right"
+      ></span>
+      <span
+        bind:this={overlayTitleLine2El}
+        class="hero-title-line-2 text-center"
+      ></span>
+      <span
+        bind:this={overlayTitleLine3El}
+        class="hero-title-line-3 text-left"
+      ></span>
     </h1>
   </div>
 
 </section>
+
+<style>
+  .hero-title {
+    display: grid;
+    grid-template-columns: max-content;
+    justify-content: center;
+    line-height: 0.85;
+    gap: 1vw;
+  }
+  /* BUILDING — JetBrains Mono uppercase tracked-out, mirrors EXPERIENCES */
+  .hero-title-line-1 {
+    font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, monospace;
+    font-size: clamp(1.4rem, 4vw, 5rem);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    line-height: 1;
+  }
+  /* DIGITAL — Sofia Sans Condensed Black uppercase, the dominant focal point */
+  .hero-title-line-2 {
+    font-family: var(--font-display, "Sofia Sans Condensed"), system-ui, sans-serif;
+    font-size: clamp(5rem, 22vw, 26rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.82;
+  }
+  /* EXPERIENCES — JetBrains Mono uppercase, tracked-out, techy contrast */
+  .hero-title-line-3 {
+    font-family: var(--font-mono, "JetBrains Mono"), ui-monospace, monospace;
+    font-size: clamp(1.4rem, 4vw, 5rem);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    line-height: 1;
+  }
+</style>
