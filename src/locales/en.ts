@@ -20,7 +20,7 @@ export const en = {
     tagline: ["THINK_CODE", "DESIGN"] as const,
   },
   aboutLines: [
-    "FRONTEND AND FULLSTACK",
+    "FRONTEND / FULLSTACK",
     "DEVELOPER WITH 7 YEARS",
     "OF COMMERCIAL EXPERIENCE",
     "BUILDING WEB, MOBILE, SSR",

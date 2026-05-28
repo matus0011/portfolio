@@ -360,7 +360,7 @@
   class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
 >
   <!-- TOP NAV -->
-  <nav class="hero-nav opacity-0 invisible flex items-start justify-between">
+  <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
     <div class="text-accent flex flex-col gap-0" style="font-family: var(--font-display)">
       <div
         class="label flex items-center gap-1 cursor-default pointer-events-auto"

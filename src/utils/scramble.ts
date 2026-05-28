@@ -21,7 +21,7 @@ export function scrambleTo(
     s.textContent = skip
       ? char
       : charset[Math.floor(Math.random() * charset.length)];
-    if (["/", "{", "}", "=", ">", "&", "_"].includes(char)) {
+    if (["{", "}", "=", ">", "&", "_"].includes(char)) {
       s.classList.add("text-accent");
     }
     el.appendChild(s);
