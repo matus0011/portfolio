@@ -62,7 +62,7 @@
   <div
     transition:fade={{ duration: 250 }}
     class="fixed inset-0 z-50 flex flex-col justify-between px-8 md:px-12 py-6 md:py-8"
-    style="background-color: rgba(224, 224, 224, 0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);"
+    style="background-color: rgba(221, 219, 214, 0.15); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);"
   >
     <!-- CLOSE BUTTON -->
     <div class="flex justify-end items-center w-full">

@@ -58,7 +58,7 @@
 
     const setCursorColor = (gray: boolean) => {
       const color = gray ? GRAY_COLOR : ACCENT_COLOR;
-      gsap.to(dotEl,  { backgroundColor: gray ? "#E0E0E0" : "#fe5030", duration: 0.3 });
+      gsap.to(dotEl,  { backgroundColor: gray ? "#DDDBD6" : "#fe5030", duration: 0.3 });
       gsap.to(pathEl, { attr: { stroke: color }, duration: 0.3 });
     };
 

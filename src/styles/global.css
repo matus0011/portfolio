@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #E0E0E0;
+  --color-bg: #DDDBD6;
   --color-ink: #010101;
   --color-mute: #8A8A8A;
   --color-accent: #FE5030;
@@ -13,6 +13,17 @@
 }
 
 @layer base {
+  /* Safari ignoruje styl natywnego scrollbara — używamy CustomScrollbar.svelte */
+  html {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   html, body {
     background: var(--color-bg);
     color: var(--color-ink);

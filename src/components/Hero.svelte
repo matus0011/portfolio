@@ -358,7 +358,7 @@
 
 <section
   bind:this={heroSectionEl}
-  class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col"
+  class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col bg-bg"
 >
   <!-- TOP NAV -->
   <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
