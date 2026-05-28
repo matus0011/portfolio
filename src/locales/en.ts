@@ -9,6 +9,7 @@ export const en = {
     linkedin: "LinkedIn",
     close: "Close menu",
     scroll: "Scroll",
+    techStack: "TECH STACK",
   },
   hero: {
     prefix: "Web",

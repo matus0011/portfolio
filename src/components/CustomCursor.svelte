@@ -51,6 +51,16 @@
     let visible = false;
     let time = 0;
     let raf: number;
+    let onAccent = false;
+
+    const ACCENT_COLOR = "rgba(254,80,48,0.9)";
+    const GRAY_COLOR   = "rgba(224,224,224,0.9)";
+
+    const setCursorColor = (gray: boolean) => {
+      const color = gray ? GRAY_COLOR : ACCENT_COLOR;
+      gsap.to(dotEl,  { backgroundColor: gray ? "#E0E0E0" : "#fe5030", duration: 0.3 });
+      gsap.to(pathEl, { attr: { stroke: color }, duration: 0.3 });
+    };
 
     const tick = () => {
       time += 0.025;
@@ -75,6 +85,14 @@
         ringX = mouseX; ringY = mouseY;
         visible = true;
         gsap.to([dotWrapperEl, svgWrapperEl], { opacity: 1, duration: 0.35 });
+      }
+
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const isAccent = !!el?.closest(".accent-section");
+      if (isAccent !== onAccent) {
+        onAccent = isAccent;
+        setCursorColor(isAccent);
+
       }
     };
 

@@ -1,5 +1,9 @@
 <script lang="ts">
   import MarqueeText from "./MarqueeText.svelte";
+  import { t, type Lang } from "../locales";
+
+  let { initialLang = "pl" as Lang } = $props();
+  const tr = $derived(t(initialLang as Lang));
 </script>
 
 <section class="accent-section">
@@ -8,7 +12,7 @@
   <div class="stripe stripe-3" data-speed="1.25"></div>
   <div class="stripe stripe-4" data-speed="1.4"></div>
 
-  <MarqueeText label="TECH STACK" />
+  <MarqueeText label={tr.labels.techStack} />
 </section>
 
 <style>

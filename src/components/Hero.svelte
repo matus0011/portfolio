@@ -59,6 +59,7 @@
   const rGen = { v: 0 };
   const availableGen = { v: 0 };
   const statusGens = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
+  const scrollGen = { v: 0 };
 
   // Per-letter filter state: scale grows with proximity to cursor
   // Center (cursor letter) = peak, ±1 = mid, ±2 = light, beyond = clean
@@ -451,9 +452,12 @@
     class="hero-left opacity-0 invisible absolute bottom-6 right-8 md:bottom-8 md:right-12 z-10 text-accent"
     style="font-size: 21px;"
   >
-    <div class="label flex items-center gap-1">
+    <div
+      class="label flex items-center gap-1 cursor-default pointer-events-auto"
+      onmouseenter={(e) => scrambleTo(e.currentTarget.querySelector('span.scroll-text') as HTMLElement, tr.labels.scroll, scrollGen)}
+    >
       <span>[</span>
-      <span>SCROLL TO EXPLORE</span>
+      <span class="scroll-text">{tr.labels.scroll}</span>
       <span>]</span>
     </div>
   </div>
