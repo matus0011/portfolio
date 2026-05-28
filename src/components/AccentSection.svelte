@@ -1,8 +1,14 @@
+<script lang="ts">
+  import MarqueeText from "./MarqueeText.svelte";
+</script>
+
 <section class="accent-section">
   <div class="stripe stripe-1" data-speed="0.6"></div>
   <div class="stripe stripe-2" data-speed="0.75"></div>
   <div class="stripe stripe-3" data-speed="1.25"></div>
   <div class="stripe stripe-4" data-speed="1.4"></div>
+
+  <MarqueeText label="TECH STACK" />
 </section>
 
 <style>
@@ -12,6 +18,9 @@
     min-height: 100vh;
     background-color: var(--color-accent);
     overflow: hidden;
+    display: flex;
+    align-items: flex-start;
+    padding-top: calc((100vh - 20rem) / 4);
   }
 
   .stripe {
@@ -20,8 +29,9 @@
     bottom: -20%;
     width: 1px;
     background-color: var(--color-ink);
-    opacity: 0.35;
+    opacity: 0.25;
     transform: translateX(-50%);
+    pointer-events: none;
   }
 
   .stripe-1 { left: calc(50% - 450px); }
