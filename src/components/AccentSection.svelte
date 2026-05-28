@@ -5,6 +5,7 @@
   import MarqueeText from "./MarqueeText.svelte";
   import { t, type Lang } from "../locales";
   import { techStack } from "../data/technologies";
+  import { scrambleAsciiOnce } from "../utils/scrambleAscii";
 
   let { initialLang = "pl" as Lang } = $props();
   const lang = $derived(initialLang as Lang);
@@ -28,7 +29,28 @@
       gsap.set(el, { height: "auto", opacity: 1, marginTop: "1rem" });
     });
     visualEls.forEach((el) => {
-      gsap.set(el, { autoAlpha: 1, height: "10rem" });
+      gsap.set(el, { autoAlpha: 1, height: "20rem" });
+    });
+
+    // ASCII boxes — scramble runs on hover (per visual cell).
+    const visualCells = Array.from(
+      pinWrap.querySelectorAll<HTMLElement>(".tech-visual-cell"),
+    );
+    const removeHover: Array<() => void> = [];
+    visualCells.forEach((cell, i) => {
+      const asciiEl = cell.querySelector<HTMLElement>(".tech-ascii");
+      const text = techStack[i]?.ascii;
+      if (!asciiEl || !text) return;
+      let cancel: (() => void) | null = null;
+      const onEnter = () => {
+        cancel?.();
+        cancel = scrambleAsciiOnce(asciiEl, text);
+      };
+      cell.addEventListener("mouseenter", onEnter);
+      removeHover.push(() => {
+        cell.removeEventListener("mouseenter", onEnter);
+        cancel?.();
+      });
     });
 
     let tl: gsap.core.Timeline | null = null;
@@ -40,12 +62,15 @@
       didSetup = true;
       const n = techStack.length;
       const stepPx = 260; // scroll distance per row collapse
+      const topDivider = pinWrap.querySelector<HTMLElement>(
+        ".tech-divider--top",
+      );
       tl = gsap.timeline({
         scrollTrigger: {
-          trigger: pinWrap,
-          start: "top top",
+          trigger: topDivider ?? pinWrap,
+          start: "top+=2 top",
           end: () => "+=" + n * stepPx,
-          pin: true,
+          pin: pinWrap,
           anticipatePin: 1,
           scrub: 0.4,
           invalidateOnRefresh: true,
@@ -101,6 +126,7 @@
       if (pollId !== null) window.clearInterval(pollId);
       tl?.scrollTrigger?.kill();
       tl?.kill();
+      removeHover.forEach((d) => d());
     };
   });
 </script>
@@ -131,7 +157,9 @@
             </div>
           </div>
           <div class="tech-visual-cell">
-            <div class="tech-visual" aria-hidden="true"></div>
+            <div class="tech-visual" aria-hidden="true">
+              <pre class="tech-ascii">{item.ascii}</pre>
+            </div>
           </div>
         </article>
         <div class="tech-divider" aria-hidden="true"></div>
@@ -176,6 +204,7 @@
 
   .marquee-slot {
     width: 100%;
+    padding-bottom: 100px;
   }
 
   .tech-pin {
@@ -190,14 +219,13 @@
   }
 
   .tech-divider {
-    width: 100%;
+    width: 98%;
     height: 0;
-    border-top: 1px dashed var(--color-ink);
-    opacity: 0.55;
+    margin: 0 auto;
+    border-top: 1px dashed var(--color-bg);
   }
 
   .tech-divider--top {
-    opacity: 1;
     border-top-width: 1.5px;
   }
 
@@ -210,7 +238,7 @@
 
   .tech-row {
     display: grid;
-    grid-template-columns: 6rem 1fr 12rem;
+    grid-template-columns: 6rem 1fr 24rem;
     align-items: start;
     gap: 2rem;
     padding: 1.25rem 2.5rem;
@@ -249,6 +277,8 @@
     line-height: 1.45;
     max-width: 42rem;
     margin: 0;
+    padding-left: 50px;
+    padding-top: 50px;
   }
 
   .tech-visual-cell {
@@ -260,10 +290,38 @@
 
   .tech-visual {
     width: 100%;
-    max-width: 12rem;
-    background-color: rgba(0, 0, 0, 0.08);
-    border: 1px dashed rgba(0, 0, 0, 0.35);
+    max-width: 24rem;
+    background-color: var(--color-bg);
+    border-radius: 8px;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
+    cursor: pointer;
+  }
+
+  .tech-visual:hover {
+    background-color: var(--color-accent);
+  }
+
+  .tech-ascii {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 22px;
+    line-height: 1.25;
+    white-space: pre;
+    color: var(--color-accent);
+    margin: 0;
+    padding: 12px;
+    letter-spacing: 0.02em;
+    user-select: none;
+    transition: color 0.25s ease;
+  }
+
+  .tech-visual:hover .tech-ascii {
+    color: var(--color-bg);
   }
 
   @media (max-width: 768px) {
