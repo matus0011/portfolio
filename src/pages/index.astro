@@ -2,9 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.svelte";
 import AboutSection from "../components/AboutSection.svelte";
+import AccentSection from "../components/AccentSection.svelte";
 ---
 
 <Layout title="lab. — First Collection">
   <Hero client:load />
   <AboutSection client:load initialLang="pl" />
+  <AccentSection client:load />
 </Layout>

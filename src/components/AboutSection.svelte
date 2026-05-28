@@ -48,8 +48,8 @@
 
 <style>
   .about-section {
-    padding-top: 20rem;
-    padding-bottom: 20rem;
+    padding-top: 16.25rem;
+    padding-bottom: 16.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
