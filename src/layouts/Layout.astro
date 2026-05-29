@@ -78,8 +78,9 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
         effects: true,
       });
 
-      // Udostępnij globalnie dla innych komponentów
+      // Udostępnij globalnie dla innych komponentów i powiadom o gotowości
       window.smoother = smoother;
+      window.dispatchEvent(new CustomEvent("smootherReady"));
     </script>
   </body>
 </html>

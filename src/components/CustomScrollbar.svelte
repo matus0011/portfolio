@@ -82,20 +82,19 @@
     window.addEventListener("resize", onResize);
     window.addEventListener("loaderFinished", onResize, { once: true });
 
-    const waitSmoother = window.setInterval(() => {
-      if (window.smoother) {
-        window.clearInterval(waitSmoother);
-        ScrollTrigger.refresh();
-        applyMetrics();
-      }
-    }, 50);
+    const onSmootherReady = () => {
+      ScrollTrigger.refresh();
+      applyMetrics();
+    };
+    if (window.smoother) onSmootherReady();
+    else window.addEventListener("smootherReady", onSmootherReady, { once: true });
 
     applyMetrics();
 
     return () => {
       gsap.ticker.remove(tick);
       window.removeEventListener("resize", onResize);
-      window.clearInterval(waitSmoother);
+      window.removeEventListener("smootherReady", onSmootherReady);
     };
   });
 </script>

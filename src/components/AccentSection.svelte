@@ -54,7 +54,6 @@
     });
 
     let tl: gsap.core.Timeline | null = null;
-    let pollId: number | null = null;
     let didSetup = false;
 
     const setup = () => {
@@ -136,17 +135,11 @@
     if (window.smoother) {
       setup();
     } else {
-      pollId = window.setInterval(() => {
-        if (window.smoother) {
-          if (pollId !== null) window.clearInterval(pollId);
-          pollId = null;
-          setup();
-        }
-      }, 50);
+      window.addEventListener("smootherReady", setup, { once: true });
     }
 
     return () => {
-      if (pollId !== null) window.clearInterval(pollId);
+      window.removeEventListener("smootherReady", setup);
       tl?.scrollTrigger?.kill();
       tl?.kill();
       removeHover.forEach((d) => d());

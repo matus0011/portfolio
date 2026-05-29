@@ -41,8 +41,6 @@
   const statusSymbols = ["=>", "&&", "fn", "||"];
 
   let roleEl     = $state<HTMLSpanElement | null>(null);
-  let bracketOpenEl: HTMLElement;
-  let bracketCloseEl: HTMLElement;
   let rolesBlockEl: HTMLElement;
 
   let roleIdx   = 0;
@@ -296,30 +294,6 @@
         scrub: true,
         onUpdate: (self) => {
           ui.heroScrollProgress = self.progress;
-        },
-      });
-
-      gsap.to(bracketOpenEl, {
-        y: -40,
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroSectionEl,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
-
-      gsap.to(bracketCloseEl, {
-        y: 40,
-        opacity: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroSectionEl,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
         },
       });
     }, heroSectionEl);
