@@ -114,14 +114,14 @@ export const techStack: TechStackItem[] = [
     descEn:
       "Backend APIs, integrations and tooling in Node.js with TypeScript — from REST and WebSockets to long-term maintenance.",
     ascii: ascii([
+      "                    ",
       "    +----------+    ",
       "    | NODE.JS  |    ",
       "    |  + TS    |    ",
       "    |  + HONO  |    ",
       "    +----------+    ",
-      "      /\\__/\\       ",
-      "       \\  /         ",
-      "        \\/          ",
+      "  REST / WS / API   ",
+      "                    ",
     ]),
   },
   {

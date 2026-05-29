@@ -61,10 +61,22 @@
       if (didSetup) return;
       didSetup = true;
       const n = techStack.length;
-      const stepPx = 260; // scroll distance per row collapse
+      const stepPx = 300;
+      const overlap = 0.55;
+      const duration = 1.2;
       const topDivider = pinWrap.querySelector<HTMLElement>(
         ".tech-divider--top",
       );
+      // Dividers AFTER each row (skip the top one).
+      const dividerEls = Array.from(
+        pinWrap.querySelectorAll<HTMLElement>(
+          ".tech-divider:not(.tech-divider--top)",
+        ),
+      );
+      const rowEls = Array.from(
+        pinWrap.querySelectorAll<HTMLElement>(".tech-row"),
+      );
+
       tl = gsap.timeline({
         scrollTrigger: {
           trigger: topDivider ?? pinWrap,
@@ -72,38 +84,50 @@
           end: () => "+=" + n * stepPx,
           pin: pinWrap,
           anticipatePin: 1,
-          scrub: 0.4,
+          scrub: 0.8,
           invalidateOnRefresh: true,
           markers: true,
         },
       });
 
+      // Each row keeps its full layout height. We:
+      //   - clip the row visually from the bottom (clip-path) so only the
+      //     top "headerArea" stays visible — heading on the left + the
+      //     top part of the visual box on the right
+      //   - slide the divider that follows it (and everything below) up by
+      //     the same amount, so the next row rises from below and ends up
+      //     right under the clip line of the previous row
+      // Result: each new tab visually overlaps the previous one from below,
+      // dashed divider lines and vertical stripes stay visible, the desc
+      // text simply gets covered as the next row rises (no early height
+      // collapse).
+      const headerArea = 80;
       for (let i = 0; i < n; i++) {
-        const desc = descEls[i];
-        const vis = visualEls[i];
-        if (desc) {
+        const row = rowEls[i];
+        const divider = dividerEls[i];
+        const startAt = i * overlap;
+        if (row) {
           tl.to(
-            desc,
+            row,
             {
-              height: 0,
-              opacity: 0,
-              marginTop: 0,
-              duration: 1,
-              ease: "power2.in",
+              clipPath: () =>
+                `inset(0 0 ${Math.max(0, row.offsetHeight - headerArea)}px 0)`,
+              duration,
+              ease: "power1.inOut",
             },
-            i,
+            startAt,
           );
         }
-        if (vis) {
+        if (divider && row) {
           tl.to(
-            vis,
+            divider,
             {
-              height: 0,
-              autoAlpha: 0,
-              duration: 1,
-              ease: "power2.in",
+              marginTop: () =>
+                -Math.max(0, row.offsetHeight - headerArea),
+              duration,
+              ease: "power1.inOut",
             },
-            i,
+            startAt,
           );
         }
       }
@@ -237,13 +261,13 @@
   }
 
   .tech-row {
+    position: relative;
     display: grid;
     grid-template-columns: 6rem 1fr 24rem;
     align-items: start;
     gap: 2rem;
     padding: 1.25rem 2.5rem;
     color: var(--color-ink);
-    transition: background-color 0.4s ease;
   }
 
   .tech-no {
