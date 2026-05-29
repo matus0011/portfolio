@@ -1,3 +1,5 @@
+import type { Translations } from "./index";
+
 export const en = {
   nav: {
     home: "Home",
@@ -39,4 +41,4 @@ export const en = {
     ] as const,
     cta: "Get in touch",
   },
-} as const;
+} as const satisfies Translations;

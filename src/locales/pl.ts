@@ -40,5 +40,3 @@ export const pl = {
     cta: "Skontaktuj się",
   },
 } as const;
-
-export type Translations = typeof pl;

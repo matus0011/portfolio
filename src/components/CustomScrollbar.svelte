@@ -14,10 +14,9 @@
   let scrollPercent = $state(0);
 
   function getMetrics() {
-    const smoother = (window as Window & { smoother?: { scrollTop: () => number } }).smoother;
     const view = window.innerHeight;
     const max = ScrollTrigger.maxScroll(window) || 0;
-    const scrollTop = smoother?.scrollTop() ?? window.scrollY;
+    const scrollTop = window.smoother?.scrollTop() ?? window.scrollY;
 
     if (max <= 1) {
       return { visible: false, thumbHeight: 0, thumbTop: 0, scrollPercent: 0 };
@@ -37,10 +36,10 @@
 
   function applyMetrics() {
     const m = getMetrics();
-    visible = m.visible;
-    thumbHeight = m.thumbHeight;
-    thumbTop = m.thumbTop;
-    scrollPercent = m.scrollPercent;
+    if (m.visible !== visible) visible = m.visible;
+    if (m.thumbHeight !== thumbHeight) thumbHeight = m.thumbHeight;
+    if (m.thumbTop !== thumbTop) thumbTop = m.thumbTop;
+    if (m.scrollPercent !== scrollPercent) scrollPercent = m.scrollPercent;
   }
 
   function scrollToClientY(clientY: number) {
@@ -51,9 +50,8 @@
     const ratio = Math.min(1, Math.max(0, (clientY - rect.top) / rect.height));
     const max = ScrollTrigger.maxScroll(window) || 0;
     const target = ratio * max;
-    const smoother = (window as Window & { smoother?: { scrollTop: (n: number) => void } }).smoother;
 
-    if (smoother) smoother.scrollTop(target);
+    if (window.smoother) window.smoother.scrollTop(target);
     else window.scrollTo({ top: target, behavior: "auto" });
   }
 
@@ -85,7 +83,7 @@
     window.addEventListener("loaderFinished", onResize, { once: true });
 
     const waitSmoother = window.setInterval(() => {
-      if ((window as Window & { smoother?: unknown }).smoother) {
+      if (window.smoother) {
         window.clearInterval(waitSmoother);
         ScrollTrigger.refresh();
         applyMetrics();

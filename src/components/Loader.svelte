@@ -219,7 +219,7 @@
               },
             });
           }
-          (window as any).loaderDone = true;
+          window.loaderDone = true;
           window.dispatchEvent(new CustomEvent("loaderFinished"));
           setTimeout(() => {
             hidden = true;

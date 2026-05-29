@@ -5,7 +5,7 @@
   let container: HTMLButtonElement | undefined = $state();
   let { onclick } = $props();
 
-  let dotEls: HTMLSpanElement[] = [];
+  let dotEls = $state<HTMLSpanElement[]>([]);
 
   const RADIUS   = 64;
   const STRENGTH = 0.55;

@@ -13,7 +13,7 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -79,7 +79,7 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
       });
 
       // Udostępnij globalnie dla innych komponentów
-      (window as any).smoother = smoother;
+      window.smoother = smoother;
     </script>
   </body>
 </html>

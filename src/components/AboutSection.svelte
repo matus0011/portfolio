@@ -10,7 +10,7 @@
   const tr = $derived(t(lang));
   const LINES = $derived(tr.aboutLines);
 
-  let lineEls: HTMLElement[] = [];
+  let lineEls = $state<HTMLElement[]>([]);
   const gens = LINES.map(() => ({ v: 0 }));
 
   onMount(() => {

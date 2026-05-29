@@ -86,7 +86,6 @@
           anticipatePin: 1,
           scrub: 0.8,
           invalidateOnRefresh: true,
-          markers: true,
         },
       });
 
@@ -134,11 +133,11 @@
       ScrollTrigger.refresh();
     };
 
-    if ((window as any).smoother) {
+    if (window.smoother) {
       setup();
     } else {
       pollId = window.setInterval(() => {
-        if ((window as any).smoother) {
+        if (window.smoother) {
           if (pollId !== null) window.clearInterval(pollId);
           pollId = null;
           setup();

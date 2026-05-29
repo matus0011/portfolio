@@ -28,7 +28,6 @@
     ScrollTrigger.create({
       trigger: section,
       start: "top bottom",
-      markers: true,
       onEnter: () => tween.play(),
       onLeaveBack: () => tween.pause(),
     });

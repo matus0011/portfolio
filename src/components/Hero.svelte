@@ -25,21 +25,13 @@
       minute: "2-digit",
     });
   }
-  function getTimezone() {
-    return Intl.DateTimeFormat("en", { timeZone: "Europe/Warsaw", timeZoneName: "short" })
-      .formatToParts(new Date())
-      .find((p) => p.type === "timeZoneName")?.value ?? "CET";
-  }
   let timeEl: HTMLSpanElement;
   const tGen = { v: 0 };
-  let timezone = $state(getTimezone());
 
   let overlayTitleLine1El: HTMLSpanElement;
   let overlayTitleLine2El: HTMLSpanElement;
-  let overlayTitleLine3El: HTMLSpanElement;
   const overlayTitleLine1Gen = { v: 0 };
   const overlayTitleLine2Gen = { v: 0 };
-  const overlayTitleLine3Gen = { v: 0 };
   let titleChars: HTMLSpanElement[] = [];
   let titleH1El: HTMLHeadingElement;
   let titleSvgDefsEl: SVGDefsElement;
@@ -61,9 +53,9 @@
   const statusGens = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
   const scrollGen = { v: 0 };
 
-  // Per-letter filter state: scale grows with proximity to cursor
-  // Center (cursor letter) = peak, ±1 = mid, ±2 = light, beyond = clean
-  const HOVER_INTENSITY = [28]; // only the letter under cursor
+  // Per-letter filter state: only the letter directly under the cursor is
+  // distorted (index 0); every other letter stays clean.
+  const HOVER_INTENSITY = [28];
   const HOVER_FREQ = 0.022;
   const HOVER_DURATION = 0.45;
 
@@ -242,7 +234,7 @@
       overlay.style.transition = "opacity 0.5s ease-out, scale 0.5s ease-out";
       overlay.style.opacity = "1";
       overlay.style.scale = "1";
-      if (menuWasOpen && (window as any).loaderDone) {
+      if (menuWasOpen && window.loaderDone) {
         runTitleIntro();
       }
       window.setTimeout(() => {
@@ -255,7 +247,7 @@
   });
 
   onMount(() => {
-    if ((window as any).loaderDone) {
+    if (window.loaderDone) {
       initIntro();
     } else {
       window.addEventListener("loaderFinished", initIntro, { once: true });
@@ -278,7 +270,7 @@
       }, 10000);
     };
 
-    if ((window as any).loaderDone) {
+    if (window.loaderDone) {
       initTitleAnimations();
     } else {
       window.addEventListener("loaderFinished", initTitleAnimations, { once: true });
