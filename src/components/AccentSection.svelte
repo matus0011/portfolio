@@ -13,6 +13,7 @@
 
   let section: HTMLElement;
   let pinWrap: HTMLElement;
+  let outroEl: HTMLElement;
 
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -76,11 +77,28 @@
         pinWrap.querySelectorAll<HTMLElement>(".tech-row"),
       );
 
+      // Timeline phases (in timeline-seconds):
+      //   0 .. collapseEnd  → rows collapse one by one
+      //   collapseEnd ..    → outro panel slides up from the bottom
+      //   + holdDur         → hold fully covered to the very end
+      // The whole thing plays while the section stays pinned (page frozen),
+      // so the outro screen slides up over the frozen, collapsed tech list.
+      const collapseEnd = (n - 2) * overlap + duration;
+      const wipeDur = 1.8;
+      // Long hold so the wipe finishes well before the very end of the pin —
+      // the last sliver of pin scroll is slightly unreachable, so completing
+      // early guarantees full coverage at the real bottom of the page.
+      const holdDur = 1.1;
+      const total = collapseEnd + wipeDur + holdDur;
+      // Keep the collapse mapped to its original scroll length; the wipe/hold
+      // add proportional extra pinned scroll on top.
+      const endPx = Math.round((n * stepPx * total) / collapseEnd);
+
       tl = gsap.timeline({
         scrollTrigger: {
           trigger: topDivider ?? pinWrap,
           start: "top+=2 top",
-          end: () => "+=" + n * stepPx,
+          end: () => "+=" + endPx,
           pin: pinWrap,
           anticipatePin: 1,
           scrub: 0.8,
@@ -100,7 +118,8 @@
       // text simply gets covered as the next row rises (no early height
       // collapse).
       const headerArea = 80;
-      for (let i = 0; i < n; i++) {
+      // Stop before the last row: it never collapses and stays fully expanded.
+      for (let i = 0; i < n - 1; i++) {
         const row = rowEls[i];
         const divider = dividerEls[i];
         const startAt = i * overlap;
@@ -129,6 +148,20 @@
           );
         }
       }
+
+      // Outro screen: slides up from the bottom right after the last row
+      // collapses, while the section is still pinned (page frozen).
+      if (outroEl) {
+        gsap.set(outroEl, { yPercent: 100 });
+        tl.fromTo(
+          outroEl,
+          { yPercent: 100 },
+          { yPercent: 0, ease: "none", duration: wipeDur },
+          collapseEnd,
+        );
+        tl.to({}, { duration: holdDur });
+      }
+
       ScrollTrigger.refresh();
     };
 
@@ -178,8 +211,14 @@
             </div>
           </div>
         </article>
-        <div class="tech-divider" aria-hidden="true"></div>
+        {#if i < techStack.length - 1}
+          <div class="tech-divider" aria-hidden="true"></div>
+        {/if}
       {/each}
+    </div>
+
+    <div bind:this={outroEl} class="tech-outro">
+      <h2 class="tech-outro-title">COMING SOON</h2>
     </div>
   </div>
 </section>
@@ -226,12 +265,37 @@
   .tech-pin {
     position: relative;
     width: 100%;
-    height: 100vh;
+    /* +5rem covers the offset created by pinning on the inner top divider
+       (which sits below the 4rem padding), so the outro panel can fill the
+       whole viewport with no gap at the bottom. */
+    height: calc(100vh + 5rem);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     padding-top: 4rem;
     overflow: hidden;
+  }
+
+  .tech-outro {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    will-change: transform;
+  }
+
+  .tech-outro-title {
+    font-family: var(--font-display, "Mona Sans"), system-ui, sans-serif;
+    font-size: clamp(2rem, 8vw, 7rem);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0;
   }
 
   .tech-divider {
