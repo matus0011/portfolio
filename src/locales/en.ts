@@ -41,4 +41,14 @@ export const en = {
     ] as const,
     cta: "Get in touch",
   },
+  footer: {
+    name: "MATEUSZ",
+    phone: "+48 600 123 456",
+    email: "hello@example.com",
+    addressLabel: "Address",
+    address: ["12 Example Street", "00-001 Warsaw, Poland"],
+    coords: "52.2297 / 21.0122",
+    role: "Frontend / Fullstack Developer",
+    rights: "All rights reserved.",
+  },
 } as const satisfies Translations;

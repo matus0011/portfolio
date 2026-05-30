@@ -39,4 +39,14 @@ export const pl = {
     ] as const,
     cta: "Skontaktuj się",
   },
+  footer: {
+    name: "MATEUSZ",
+    phone: "+48 600 123 456",
+    email: "hello@example.com",
+    addressLabel: "Adres",
+    address: ["ul. Przykładowa 12", "00-001 Warszawa, Polska"],
+    coords: "52.2297 / 21.0122",
+    role: "Frontend / Fullstack Developer",
+    rights: "Wszelkie prawa zastrzeżone.",
+  },
 } as const;

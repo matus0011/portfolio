@@ -3,10 +3,12 @@ import Layout from "../../layouts/Layout.astro";
 import Hero from "../../components/Hero.svelte";
 import AboutSection from "../../components/AboutSection.svelte";
 import AccentSection from "../../components/AccentSection.svelte";
+import Footer from "../../components/Footer.svelte";
 ---
 
 <Layout title="lab. — First Collection" lang="en">
   <Hero client:load initialLang="en" />
   <AboutSection client:load initialLang="en" />
   <AccentSection client:load initialLang="en" />
+  <Footer client:load lang="en" />
 </Layout>
