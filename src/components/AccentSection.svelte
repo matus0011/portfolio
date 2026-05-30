@@ -3,6 +3,8 @@
   import gsap from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import MarqueeText from "./MarqueeText.svelte";
+  import Outro from "./Outro.svelte";
+  import CtaSection from "./CtaSection.svelte";
   import { t, type Lang } from "../locales";
   import { techStack } from "../data/technologies";
   import { scrambleAsciiOnce } from "../utils/scrambleAscii";
@@ -13,7 +15,6 @@
 
   let section: HTMLElement;
   let pinWrap: HTMLElement;
-  let outroEl: HTMLElement;
 
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -76,22 +77,31 @@
       const rowEls = Array.from(
         pinWrap.querySelectorAll<HTMLElement>(".tech-row"),
       );
+      const outroEl = pinWrap.querySelector<HTMLElement>(".tech-outro");
+      const ctaEl = pinWrap.querySelector<HTMLElement>(".cta-screen");
+      const fwrdEl = pinWrap.querySelector<HTMLElement>(".cta-fwrd");
 
-      // Timeline phases (in timeline-seconds):
-      //   0 .. collapseEnd  → rows collapse one by one
-      //   collapseEnd ..    → outro panel slides up from the bottom
-      //   + holdDur         → hold fully covered to the very end
-      // The whole thing plays while the section stays pinned (page frozen),
-      // so the outro screen slides up over the frozen, collapsed tech list.
+      // Timeline phases (in timeline-seconds) — everything plays while the
+      // section is pinned (page frozen), so each screen slides up over the
+      // previous, frozen one:
+      //   0 .. collapseEnd        → rows collapse one by one
+      //   collapseEnd ..          → experience screen slides up
+      //   .. expEnd               → CTA screen slides up over experience
+      //   .. ctaEnd               → "FWRD" drifts to the right
+      //   + holdDur               → hold fully covered to the very end
       const collapseEnd = (n - 2) * overlap + duration;
       const wipeDur = 1.8;
-      // Long hold so the wipe finishes well before the very end of the pin —
-      // the last sliver of pin scroll is slightly unreachable, so completing
-      // early guarantees full coverage at the real bottom of the page.
+      const ctaDur = 1.8;
+      const fwrdDur = 1.5;
+      // Long hold so the last screen finishes well before the very end of the
+      // pin — the last sliver of pin scroll is slightly unreachable, so
+      // completing early guarantees full coverage at the real bottom.
       const holdDur = 1.1;
-      const total = collapseEnd + wipeDur + holdDur;
-      // Keep the collapse mapped to its original scroll length; the wipe/hold
-      // add proportional extra pinned scroll on top.
+      const expEnd = collapseEnd + wipeDur;
+      const ctaEnd = expEnd + ctaDur;
+      const total = ctaEnd + fwrdDur + holdDur;
+      // Keep the collapse mapped to its original scroll length; the later
+      // phases add proportional extra pinned scroll on top.
       const endPx = Math.round((n * stepPx * total) / collapseEnd);
 
       tl = gsap.timeline({
@@ -149,7 +159,7 @@
         }
       }
 
-      // Outro screen: slides up from the bottom right after the last row
+      // Experience screen slides up from the bottom right after the last row
       // collapses, while the section is still pinned (page frozen).
       if (outroEl) {
         gsap.set(outroEl, { yPercent: 100 });
@@ -159,8 +169,32 @@
           { yPercent: 0, ease: "none", duration: wipeDur },
           collapseEnd,
         );
-        tl.to({}, { duration: holdDur });
       }
+
+      // CTA screen slides up over the frozen experience screen.
+      if (ctaEl) {
+        gsap.set(ctaEl, { yPercent: 100 });
+        tl.fromTo(
+          ctaEl,
+          { yPercent: 100 },
+          { yPercent: 0, ease: "none", duration: ctaDur },
+          expEnd,
+        );
+      }
+
+      // Once the CTA covers, "FWRD" drifts to the right as scrolling continues.
+      if (fwrdEl) {
+        gsap.set(fwrdEl, { x: () => -0.1 * window.innerWidth });
+        tl.fromTo(
+          fwrdEl,
+          { x: () => -0.1 * window.innerWidth },
+          { x: () => 0.18 * window.innerWidth, ease: "none", duration: fwrdDur },
+          ctaEnd,
+        );
+      }
+
+      // Hold fully covered to the very end of the pin.
+      tl.to({}, { duration: holdDur }, total - holdDur);
 
       ScrollTrigger.refresh();
     };
@@ -217,9 +251,8 @@
       {/each}
     </div>
 
-    <div bind:this={outroEl} class="tech-outro">
-      <h2 class="tech-outro-title">COMING SOON</h2>
-    </div>
+    <Outro />
+    <CtaSection />
   </div>
 </section>
 
@@ -274,28 +307,6 @@
     justify-content: flex-start;
     padding-top: 4rem;
     overflow: hidden;
-  }
-
-  .tech-outro {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--color-bg);
-    color: var(--color-ink);
-    will-change: transform;
-  }
-
-  .tech-outro-title {
-    font-family: var(--font-display, "Mona Sans"), system-ui, sans-serif;
-    font-size: clamp(2rem, 8vw, 7rem);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin: 0;
   }
 
   .tech-divider {
