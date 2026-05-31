@@ -3,7 +3,6 @@
   import { animate } from "motion";
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
-  import MagneticDots from "./MagneticDots.svelte";
   import { t, type Lang } from "../locales";
   import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
@@ -38,7 +37,6 @@
   const titleFilterIdPrefix = `hero-distort-${Math.random().toString(36).slice(2, 9)}`;
 
   const roles    = $derived([...tr.hero.roles]);
-  const statusSymbols = ["=>", "&&", "fn", "||"];
 
   let roleEl     = $state<HTMLSpanElement | null>(null);
   let rolesBlockEl: HTMLElement;
@@ -47,8 +45,6 @@
   let cursor    = $state(true);
 
   const rGen = { v: 0 };
-  const availableGen = { v: 0 };
-  const statusGens = [{ v: 0 }, { v: 0 }, { v: 0 }, { v: 0 }];
   const scrollGen = { v: 0 };
 
   // Per-letter filter state: only the letter directly under the cursor is
@@ -196,21 +192,14 @@
   }
 
   function initIntro() {
-    const elements = document.querySelectorAll(
-      ".hero-nav, .hero-left",
-    );
+    const elements = document.querySelectorAll(".hero-left");
     elements.forEach((el) => el.classList.remove("invisible"));
 
     animate([
       [
-        ".hero-nav",
-        { y: [-20, 0], opacity: [0, 1] },
-        { duration: 1.2, ease: "easeOut" },
-      ],
-      [
         ".hero-left",
         { y: [25, 0], opacity: [0, 1] },
-        { duration: 1.2, ease: "easeOut", at: "-1.0" },
+        { duration: 1.2, ease: "easeOut" },
       ],
     ]);
 
@@ -327,35 +316,6 @@
   bind:this={heroSectionEl}
   class="relative h-screen w-full overflow-hidden px-8 md:px-12 py-6 md:py-8 flex flex-col bg-bg"
 >
-  <!-- TOP NAV -->
-  <nav class="hero-nav opacity-0 invisible flex items-center justify-between">
-    <div class="text-accent flex flex-col gap-0" style="font-family: var(--font-display)">
-      <div
-        class="label flex items-center gap-1 cursor-default pointer-events-auto"
-        style="font-size: 18px; line-height: 0.95;"
-        onmouseenter={(e) => scrambleTo(e.currentTarget.querySelector('.status-text') as HTMLElement, tr.hero.availableLabel, availableGen)}
-      >
-        <span>[</span>
-        <span class="status-text">{tr.hero.availableLabel}</span>
-        <span>]</span>
-      </div>
-      {#each tr.hero.statuses as status, i}
-        <div
-          class="label flex items-center gap-1.5 opacity-90 cursor-default pointer-events-auto"
-          style="font-size: 18px; line-height: 0.95;"
-          onmouseenter={(e) => scrambleTo(e.currentTarget.querySelector('.status-text') as HTMLElement, status, statusGens[i])}
-        >
-          <span class="font-mono">{statusSymbols[i] || "=>"}</span>
-          <span class="status-text">{status}</span>
-        </div>
-      {/each}
-    </div>
-
-    <MagneticDots onclick={() => (ui.menuOpen = true)} />
-  </nav>
-
-
-
   <!-- MAIN GRID -->
   <div class="flex-1 grid grid-cols-12 gap-6 mt-2">
     <!-- LEFT COLUMN -->
