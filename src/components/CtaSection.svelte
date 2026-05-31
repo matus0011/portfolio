@@ -4,6 +4,13 @@
   `.cta-screen`) over the frozen experience screen, then drifts `.cta-fwrd`
   to the right.
 -->
+<script lang="ts">
+  import { t, type Lang } from "../locales";
+
+  let { lang = "pl" as Lang }: { lang?: Lang } = $props();
+  const cta = $derived(t(lang).cta);
+</script>
+
 <div class="cta-screen">
   <div class="cta-lines">
     <div class="cta-line cta-line--top">
@@ -22,9 +29,9 @@
   </div>
 
   <div class="cta-aside">
-    <p class="cta-desc">Digital architectures for an ever-shifting world.</p>
+    <p class="cta-desc">{cta.desc}</p>
     <a class="cta-btn" href="#">
-      <span>Let's talk</span>
+      <span>{cta.button}</span>
       <span class="cta-btn__arrow">&#8594;</span>
     </a>
   </div>

@@ -6,6 +6,18 @@
   const tr = $derived(t(lang));
   const f = $derived(tr.footer);
 
+  function goTo(target: string) {
+    const sm = window.smoother;
+    if (sm) {
+      if (target === "top") sm.scrollTo(0, true);
+      else sm.scrollTo(target, true, "top top");
+    } else if (target === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+
   const socials = [
     { label: "Instagram", href: "#" },
     { label: "LinkedIn", href: "#" },
@@ -51,13 +63,13 @@
   const year = new Date().getFullYear();
 </script>
 
-<footer class="footer">
+<footer id="contact" class="footer">
   <div class="footer-top" data-speed="0.92">
     <nav class="footer-nav">
-      <a href="/">{tr.nav.home}</a>
-      <a href="#">{tr.nav.projects}</a>
-      <a href="#">{tr.nav.about}</a>
-      <a href="#">{tr.nav.contact}</a>
+      <a href="/" onclick={(e) => { e.preventDefault(); goTo("top"); }}>{tr.nav.home}</a>
+      <a href="#about" onclick={(e) => { e.preventDefault(); goTo("#about"); }}>{tr.nav.about}</a>
+      <a href="#tech" onclick={(e) => { e.preventDefault(); goTo("#tech"); }}>{tr.nav.tech}</a>
+      <a href="#contact" onclick={(e) => { e.preventDefault(); goTo("#contact"); }}>{tr.nav.contact}</a>
     </nav>
 
     <div class="footer-contact">

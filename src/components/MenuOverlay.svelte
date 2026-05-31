@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
   import { t, type Lang } from "../locales";
   import { scrambleTo } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
@@ -9,11 +12,30 @@
   const tr = $derived(t(lang));
 
   const menuItems = $derived([
-    { label: tr.nav.home, href: "/" },
-    { label: tr.nav.projects, href: "#" },
-    { label: tr.nav.about, href: "#" },
-    { label: tr.nav.contact, href: "#" },
+    { id: "home", label: tr.nav.home, target: "top" },
+    { id: "about", label: tr.nav.about, target: "#about" },
+    { id: "tech", label: tr.nav.tech, target: "#tech" },
+    { id: "contact", label: tr.nav.contact, target: "#contact" },
   ]);
+
+  const activeIndex = $derived(
+    Math.max(0, menuItems.findIndex((m) => m.id === ui.activeSection)),
+  );
+
+  function goTo(target: string) {
+    ui.menuOpen = false;
+    requestAnimationFrame(() => {
+      const sm = window.smoother;
+      if (sm) {
+        if (target === "top") sm.scrollTo(0, true);
+        else sm.scrollTo(target, true, "top top");
+      } else if (target === "top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        document.querySelector(target)?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }
 
   let hoveredIndex = $state(0);
   let indicatorY = $state(0);
@@ -41,20 +63,54 @@
     scrambleTo(el, menuItems[i].label, gens[i], undefined, undefined, 2);
   }
 
+  function pointTo(i: number) {
+    const links = navEl?.querySelectorAll("a");
+    const el = links?.[i] as HTMLElement | undefined;
+    if (el) indicatorY = getViewportY(el);
+  }
+
   function handleNavMouseLeave() {
-    hoveredIndex = 0;
-    const first = navEl?.querySelector("a") as HTMLElement | null;
-    if (first) indicatorY = getViewportY(first);
+    hoveredIndex = activeIndex;
+    pointTo(activeIndex);
   }
 
   $effect(() => {
     if (ui.menuOpen) {
       requestAnimationFrame(() => {
-        const first = navEl?.querySelector("a") as HTMLElement | null;
-        if (first) indicatorY = getViewportY(first);
+        hoveredIndex = activeIndex;
+        pointTo(activeIndex);
         updateNavBounds();
       });
     }
+  });
+
+  // Scroll-spy: highlight the section currently in view.
+  onMount(() => {
+    gsap.registerPlugin(ScrollTrigger);
+    let triggers: ScrollTrigger[] = [];
+    const setup = () => {
+      ["home", "about", "tech", "contact"].forEach((id) => {
+        const el = document.querySelector("#" + id);
+        if (!el) return;
+        triggers.push(
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 45%",
+            end: "bottom 45%",
+            onToggle: (self) => {
+              if (self.isActive) ui.activeSection = id;
+            },
+          }),
+        );
+      });
+      ScrollTrigger.refresh();
+    };
+    if (window.smoother) setup();
+    else window.addEventListener("smootherReady", setup, { once: true });
+    return () => {
+      window.removeEventListener("smootherReady", setup);
+      triggers.forEach((t) => t.kill());
+    };
   });
 </script>
 
@@ -111,10 +167,14 @@
 
         {#each menuItems as item, i (item.label)}
           <a
-            href={item.href}
-            onclick={() => (ui.menuOpen = false)}
+            href={item.target === "top" ? "/" : item.target}
+            onclick={(e) => {
+              e.preventDefault();
+              goTo(item.target);
+            }}
             onmouseenter={(e) => handleLinkMouseEnter(i, e.currentTarget as HTMLElement)}
             class="inline-block text-6xl sm:text-8xl md:text-9xl font-black uppercase tracking-tight hover:text-accent transition-colors duration-300 py-0 leading-none"
+            class:text-accent={item.id === ui.activeSection}
             style="font-family: var(--font-display)"
           >
             {item.label}

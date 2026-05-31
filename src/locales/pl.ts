@@ -1,8 +1,8 @@
 export const pl = {
   nav: {
     home: "Home",
-    projects: "Projekty",
     about: "O mnie",
+    tech: "Technologie",
     contact: "Kontakt",
   },
   labels: {
@@ -48,5 +48,21 @@ export const pl = {
     coords: "52.2297 / 21.0122",
     role: "Frontend / Fullstack Developer",
     rights: "Wszelkie prawa zastrzeżone.",
+  },
+  experience: {
+    heading: "Doświadczenie",
+    columns: { company: "Firma", role: "Stanowisko", year: "Rok" },
+    rows: [
+      { company: "Studio Kreatywne", role: "Senior Frontend Developer", year: "2023" },
+      { company: "Agencja Interaktywna", role: "Frontend Developer", year: "2021" },
+      { company: "Freelance", role: "Fullstack Developer", year: "2020" },
+      { company: "Software House", role: "Web Developer", year: "2019" },
+      { company: "Startup SaaS", role: "Junior Developer", year: "2018" },
+      { company: "Pierwsza Firma", role: "Stażysta", year: "2017" },
+    ],
+  },
+  cta: {
+    desc: "Cyfrowe architektury na nieustannie zmieniający się świat.",
+    button: "Porozmawiajmy",
   },
 } as const;

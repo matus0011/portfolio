@@ -5,28 +5,24 @@
   list collapses.
 -->
 <script lang="ts">
-  const rows = [
-    { company: "Studio Kreatywne", role: "Senior Frontend Developer", year: "2023" },
-    { company: "Agencja Interaktywna", role: "Frontend Developer", year: "2021" },
-    { company: "Freelance", role: "Fullstack Developer", year: "2020" },
-    { company: "Software House", role: "Web Developer", year: "2019" },
-    { company: "Startup SaaS", role: "Junior Developer", year: "2018" },
-    { company: "Pierwsza Firma", role: "Stażysta", year: "2017" },
-  ];
+  import { t, type Lang } from "../locales";
+
+  let { lang = "pl" as Lang }: { lang?: Lang } = $props();
+  const ex = $derived(t(lang).experience);
 </script>
 
 <div class="tech-outro">
   <div class="outro-inner">
-    <h2 class="outro-heading">DOŚWIADCZENIE</h2>
+    <h2 class="outro-heading">{ex.heading}</h2>
 
     <div class="outro-table">
       <div class="outro-table__head">
-        <span class="col col-1">(FIRMA)</span>
-        <span class="col col-2">(STANOWISKO)</span>
-        <span class="col col-3">(ROK)</span>
+        <span class="col col-1">({ex.columns.company})</span>
+        <span class="col col-2">({ex.columns.role})</span>
+        <span class="col col-3">({ex.columns.year})</span>
       </div>
 
-      {#each rows as r}
+      {#each ex.rows as r}
         <div class="outro-table__row">
           <span class="col col-1">{r.company}</span>
           <span class="col col-2">{r.role}</span>

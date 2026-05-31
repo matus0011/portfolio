@@ -214,7 +214,7 @@
   });
 </script>
 
-<section bind:this={section} class="accent-section">
+<section id="tech" bind:this={section} class="accent-section">
   <div class="stripes-clip" aria-hidden="true">
     <div class="stripe stripe-1" data-speed="0.6"></div>
     <div class="stripe stripe-2" data-speed="0.75"></div>
@@ -251,8 +251,8 @@
       {/each}
     </div>
 
-    <Outro />
-    <CtaSection />
+    <Outro {lang} />
+    <CtaSection {lang} />
   </div>
 </section>
 

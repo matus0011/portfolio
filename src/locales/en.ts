@@ -3,8 +3,8 @@ import type { Translations } from "./index";
 export const en = {
   nav: {
     home: "Home",
-    projects: "Projects",
     about: "About me",
+    tech: "Tech stack",
     contact: "Contact",
   },
   labels: {
@@ -50,5 +50,21 @@ export const en = {
     coords: "52.2297 / 21.0122",
     role: "Frontend / Fullstack Developer",
     rights: "All rights reserved.",
+  },
+  experience: {
+    heading: "Experience",
+    columns: { company: "Company", role: "Role", year: "Year" },
+    rows: [
+      { company: "Creative Studio", role: "Senior Frontend Developer", year: "2023" },
+      { company: "Interactive Agency", role: "Frontend Developer", year: "2021" },
+      { company: "Freelance", role: "Fullstack Developer", year: "2020" },
+      { company: "Software House", role: "Web Developer", year: "2019" },
+      { company: "SaaS Startup", role: "Junior Developer", year: "2018" },
+      { company: "First Company", role: "Intern", year: "2017" },
+    ],
+  },
+  cta: {
+    desc: "Digital architectures for an ever-shifting world.",
+    button: "Let's talk",
   },
 } as const satisfies Translations;

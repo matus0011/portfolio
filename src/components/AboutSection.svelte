@@ -35,7 +35,7 @@
   });
 </script>
 
-<section class="about-section relative w-full px-8 md:px-12 overflow-hidden">
+<section id="about" class="about-section relative w-full px-8 md:px-12 overflow-hidden">
   <p data-speed="1.04" class="about-desc">
     {#each LINES as line, i}
       <span class="line-wrap">
