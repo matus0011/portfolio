@@ -5,7 +5,7 @@ import CustomScrollbar from "../components/CustomScrollbar.svelte";
 import Loader from "../components/Loader.svelte";
 import MenuOverlay from "../components/MenuOverlay.svelte";
 import TopBar from "../components/TopBar.svelte";
-// import GestureControl from "../components/GestureControl.svelte"; // tymczasowo wy\u0142\u0105czony
+
 import GestureGames from "../components/GestureGames.svelte";
 import GridFloor from "../components/GridFloor.svelte";
 
@@ -49,8 +49,7 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
 
     <TopBar client:load {lang} />
     <MenuOverlay client:load {lang} />
-    <!-- Przycisk gest\u00f3w tymczasowo wy\u0142\u0105czony -->
-    <!-- <GestureControl client:load {lang} /> -->
+
     <GestureGames client:load {lang} />
 
     <script>

@@ -4,6 +4,10 @@
   import { ScrollTrigger } from "gsap/ScrollTrigger";
   import { ui } from "../state/ui.svelte";
   import type { Lang } from "../locales";
+  import * as THREE from "three";
+
+  let handCanvasEl = $state<HTMLCanvasElement>();
+  let isHovered = $state(false);
 
   let { lang = "pl" as Lang }: { lang?: Lang } = $props();
 
@@ -208,7 +212,142 @@
 
   onMount(() => {
     gsap.registerPlugin(ScrollTrigger);
-    return () => teardown();
+
+    // --- 3D Minecraft Waving Hand Setup --------------------------------------
+    let hRenderer: THREE.WebGLRenderer | null = null;
+    let hScene: THREE.Scene | null = null;
+    let hCamera: THREE.OrthographicCamera | null = null;
+    let armGroup: THREE.Group | null = null;
+
+    let sleeveGeo: THREE.BoxGeometry | null = null;
+    let handGeo: THREE.BoxGeometry | null = null;
+    let thumbGeo: THREE.BoxGeometry | null = null;
+    let finger1Geo: THREE.BoxGeometry | null = null;
+    let finger2Geo: THREE.BoxGeometry | null = null;
+    let finger3Geo: THREE.BoxGeometry | null = null;
+
+    let sleeveMat: THREE.MeshLambertMaterial | null = null;
+    let handMat: THREE.MeshLambertMaterial | null = null;
+    let jointMat: THREE.MeshLambertMaterial | null = null;
+
+    let hRaf = 0;
+
+    if (handCanvasEl) {
+      hRenderer = new THREE.WebGLRenderer({
+        canvas: handCanvasEl,
+        alpha: true,
+        antialias: false, // Minecraft blocky style!
+      });
+      hRenderer.setSize(96, 96);
+      hRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      hScene = new THREE.Scene();
+
+      // Orthographic camera for isometric blocky look
+      hCamera = new THREE.OrthographicCamera(-1.8, 1.8, 1.8, -1.8, 0.1, 100);
+      hCamera.position.set(2.4, 2.8, 3.8);
+      hCamera.lookAt(0, 0.8, 0);
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+      hScene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+      dirLight.position.set(2, 4, 3);
+      hScene.add(dirLight);
+
+      // Materials
+      sleeveMat = new THREE.MeshBasicMaterial({ color: 0x010101, wireframe: true }); // wireframe sleeve
+      handMat = new THREE.MeshBasicMaterial({ color: 0xFE5030, wireframe: true });   // wireframe glowing orange hand
+      jointMat = new THREE.MeshBasicMaterial({ color: 0xFF6D52, wireframe: true });  // wireframe lighter orange hand
+
+      armGroup = new THREE.Group();
+      hScene.add(armGroup);
+
+      // Construct blocky arm (Minecraft Voxel look)
+      sleeveGeo = new THREE.BoxGeometry(0.7, 1.1, 0.7);
+      const sleeveMesh = new THREE.Mesh(sleeveGeo, sleeveMat);
+      sleeveMesh.position.set(0, 0.55, 0);
+      armGroup.add(sleeveMesh);
+
+      handGeo = new THREE.BoxGeometry(0.8, 0.7, 0.6);
+      const handMesh = new THREE.Mesh(handGeo, handMat);
+      handMesh.position.set(0, 1.45, 0);
+      armGroup.add(handMesh);
+
+      thumbGeo = new THREE.BoxGeometry(0.24, 0.35, 0.24);
+      const thumbMesh = new THREE.Mesh(thumbGeo, jointMat);
+      thumbMesh.position.set(-0.48, 1.35, 0.1);
+      armGroup.add(thumbMesh);
+
+      finger1Geo = new THREE.BoxGeometry(0.24, 0.45, 0.24);
+      const finger1 = new THREE.Mesh(finger1Geo, handMat);
+      finger1.position.set(-0.25, 1.95, 0);
+      armGroup.add(finger1);
+
+      finger2Geo = new THREE.BoxGeometry(0.24, 0.5, 0.24);
+      const finger2 = new THREE.Mesh(finger2Geo, jointMat);
+      finger2.position.set(0.02, 1.98, 0);
+      armGroup.add(finger2);
+
+      finger3Geo = new THREE.BoxGeometry(0.24, 0.42, 0.24);
+      const finger3 = new THREE.Mesh(finger3Geo, handMat);
+      finger3.position.set(0.28, 1.94, 0);
+      armGroup.add(finger3);
+
+      armGroup.position.set(0, -0.65, 0);
+
+      const hAnimate = () => {
+        hRaf = requestAnimationFrame(hAnimate);
+        const time = performance.now() * 0.001;
+
+        if (armGroup && hRenderer && hScene && hCamera) {
+          if (active) {
+            // Wave arm energetically when active (camera gestures ON)
+            armGroup.rotation.z = Math.sin(time * 9.0) * 0.32;
+            armGroup.rotation.x = Math.cos(time * 5.0) * 0.08;
+            armGroup.rotation.y = 0.25 + Math.sin(time * 2.0) * 0.1;
+            armGroup.position.y = -0.65 + Math.sin(time * 9.0) * 0.04;
+          } else {
+            // Idle breathing sway + slow Y rotation
+            armGroup.rotation.z = Math.sin(time * 1.6) * 0.04;
+            armGroup.rotation.x = 0;
+            armGroup.position.y = -0.65 + Math.sin(time * 1.6) * 0.02;
+
+            if (isHovered) {
+              // Spin faster and wave on hover
+              armGroup.rotation.y = time * 2.5;
+              armGroup.rotation.z = Math.sin(time * 5) * 0.15;
+            } else {
+              // Normal slow spin
+              armGroup.rotation.y = time * 0.65;
+            }
+          }
+          hRenderer.render(hScene, hCamera);
+        }
+      };
+      hAnimate();
+    }
+
+    return () => {
+      teardown();
+      cancelAnimationFrame(hRaf);
+      
+      // Dispose geometries
+      sleeveGeo?.dispose();
+      handGeo?.dispose();
+      thumbGeo?.dispose();
+      finger1Geo?.dispose();
+      finger2Geo?.dispose();
+      finger3Geo?.dispose();
+
+      // Dispose materials
+      sleeveMat?.dispose();
+      handMat?.dispose();
+      jointMat?.dispose();
+      
+      hRenderer?.dispose();
+    };
   });
 </script>
 
@@ -248,71 +387,94 @@
     <p class="gc-privacy">{tr.privacy}</p>
   </div>
 
-  <button class="gc-btn" onclick={toggle} aria-pressed={active} aria-label={tr.label}>
-    <svg class="gc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M23 7l-7 5 7 5V7z" />
-      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-    </svg>
-    <span>{active ? tr.on : tr.label}</span>
-  </button>
+  <div
+    class="gc-hand-wrapper"
+    onclick={toggle}
+    onkeydown={(e) => e.key === "Enter" && toggle()}
+    role="button"
+    tabindex="0"
+    aria-pressed={active}
+    aria-label={tr.label}
+    onmouseenter={() => (isHovered = true)}
+    onmouseleave={() => (isHovered = false)}
+  >
+    <canvas bind:this={handCanvasEl} class="gc-hand-3d"></canvas>
+    {#if active && gestureIcon}
+      <span class="gc-btn-gesture-indicator">{gestureIcon}</span>
+    {/if}
+  </div>
 </div>
 
 <style>
   .gc {
-    position: fixed;
-    left: 1.25rem;
-    bottom: 1.25rem;
+    position: relative;
     z-index: 46;
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
     pointer-events: none;
   }
 
-  .gc-btn {
+  .gc-hand-wrapper {
     pointer-events: auto;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
-    border: 1px solid var(--color-ink);
-    background: var(--color-bg);
-    color: var(--color-ink);
-    font-family: var(--font-mono, ui-monospace, monospace);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease;
-  }
-  .gc--active .gc-btn {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: var(--color-bg);
-  }
-  .gc-btn:hover {
-    background: var(--color-ink);
-    color: var(--color-bg);
-  }
-  .gc--active .gc-btn:hover {
-    background: var(--color-accent);
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: none;
   }
 
-  .gc-icon {
-    width: 1.05rem;
-    height: 1.05rem;
+  .gc-hand-3d {
+    width: 96px;
+    height: 96px;
+    display: block;
+    image-rendering: pixelated;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .gc-hand-wrapper:hover .gc-hand-3d {
+    transform: scale(1.1);
+  }
+
+  .gc-hand-label {
+    font-family: var(--font-display, sans-serif);
+    font-size: 18px;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    transition: color 0.3s ease;
+  }
+  .gc-hand-wrapper:hover .gc-hand-label {
+    color: var(--color-ink);
+  }
+
+  .gc-btn-gesture-indicator {
+    font-size: 1.15rem;
+    line-height: 1;
+    margin-left: 0.1rem;
+    display: inline-block;
+    animation: gc-pulse-gesture 0.4s ease-out;
+  }
+  @keyframes gc-pulse-gesture {
+    0% { transform: scale(0.6); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
   .gc-panel {
     pointer-events: auto;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
     width: 230px;
     padding: 0.6rem;
     border: 1px solid var(--color-ink);
     background: var(--color-bg);
     display: none;
+    margin-bottom: 0.5rem;
+    z-index: 50;
   }
   .gc-panel--open {
     display: block;

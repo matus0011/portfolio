@@ -6,6 +6,7 @@
   import { t, type Lang } from "../locales";
   import { scrambleTo, DIGIT_CHARS } from "../utils/scramble";
   import { ui } from "../state/ui.svelte";
+  import GestureControl from "./GestureControl.svelte";
 
   let heroSectionEl: HTMLElement;
 
@@ -324,7 +325,8 @@
     >
       <!-- LinkedIn link + location -->
       <div class="absolute bottom-0 left-0 flex flex-col gap-[2px]">
-      <a
+        <GestureControl {lang} />
+        <a
         href="#"
         class="label inline-flex items-center gap-1.5 text-accent transition-colors"
         onmouseenter={() =>
