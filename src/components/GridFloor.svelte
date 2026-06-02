@@ -13,6 +13,11 @@
   const LINE_OPACITY = 0.45;
   const LINE_WIDTH = 1.8; // grubo\u015b\u0107 linii w pikselach (grube linie Three.js)
 
+  // Hover „spotlight" \u2014 linie w pobli\u017cu kursora rozja\u015bniaj\u0105 si\u0119 / nabieraj\u0105 akcentu
+  const SPOT_COLOR = "#FF4A24"; // kolor blasku
+  const SPOT_RADIUS = 24; // promie\u0144 poświaty (jednostki sceny)
+  const SPOT_STRENGTH = 0.85; // si\u0142a (0..1) \u2014 \u015bredni efekt
+
   // Geometria siatki (jednostki sceny)
   const HALF_WIDTH = 170; // zasi\u0119g w lewo/prawo \u2014 z zapasem, by siatka zawsze
   //                          si\u0119ga\u0142a poza kraw\u0119dzie ekranu (pe\u0142na szeroko\u015b\u0107)
@@ -89,6 +94,34 @@
       alphaToCoverage: true,
     });
 
+    // --- Spotlight: poświata pod\u0105\u017caj\u0105ca za kursorem (liczona na GPU) -----------
+    // Siatka jest w origin bez transformacji -> instanceStart/End == pozycja \u015bwiata.
+    material.uniforms.uSpot = { value: new THREE.Vector3(0, 0, 1e6) };
+    material.uniforms.uRadius = { value: SPOT_RADIUS };
+    material.uniforms.uStrength = { value: 0 }; // 0 dop\u00f3ki kursor nieaktywny
+    material.uniforms.uHotColor = { value: new THREE.Color(SPOT_COLOR) };
+
+    material.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <clipping_planes_pars_vertex>",
+          "#include <clipping_planes_pars_vertex>\n\t\tvarying vec3 vWorldPos;",
+        )
+        .replace(
+          "gl_Position = clip;",
+          "vWorldPos = ( position.y < 0.5 ) ? instanceStart : instanceEnd;\n\t\t\tgl_Position = clip;",
+        );
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <clipping_planes_pars_fragment>",
+          "#include <clipping_planes_pars_fragment>\n\t\tuniform vec3 uSpot;\n\t\tuniform float uRadius;\n\t\tuniform float uStrength;\n\t\tuniform vec3 uHotColor;\n\t\tvarying vec3 vWorldPos;",
+        )
+        .replace(
+          "gl_FragColor = vec4( diffuseColor.rgb, alpha );",
+          "float _d = distance( vWorldPos.xz, uSpot.xz );\n\t\t\tfloat _glow = smoothstep( uRadius, 0.0, _d ) * uStrength;\n\t\t\tvec3 _rgb = mix( diffuseColor.rgb, uHotColor, _glow );\n\t\t\tfloat _a = alpha + ( 1.0 - alpha ) * _glow;\n\t\t\tgl_FragColor = vec4( _rgb, _a );",
+        );
+    };
+
     const grid = new LineSegments2(geometry, material);
     scene.add(grid);
 
@@ -135,9 +168,76 @@
       window.addEventListener("smootherReady", setupScrollTrigger, { once: true });
     }
 
+    // --- Hover spotlight: rzut kursora na pod\u0142og\u0119 + mi\u0119kka p\u0119tla rAF -----------
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const raycaster = new THREE.Raycaster();
+    const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const ndc = new THREE.Vector2();
+    const hit = new THREE.Vector3();
+
+    const curSpot = new THREE.Vector3(0, 0, 1e6);
+    const tgtSpot = new THREE.Vector3(0, 0, 1e6);
+    let curStrength = 0;
+    let tgtStrength = 0;
+    let rafId = 0;
+    let looping = false;
+
+    function loop() {
+      curStrength += (tgtStrength - curStrength) * 0.12;
+      curSpot.lerp(tgtSpot, 0.18);
+      material.uniforms.uStrength.value = curStrength;
+      material.uniforms.uSpot.value.copy(curSpot);
+      render();
+      if (Math.abs(tgtStrength - curStrength) > 0.002 || curStrength > 0.002) {
+        rafId = requestAnimationFrame(loop);
+      } else {
+        looping = false;
+        curStrength = 0;
+        material.uniforms.uStrength.value = 0;
+        render();
+      }
+    }
+    function ensureLoop() {
+      if (!looping) {
+        looping = true;
+        rafId = requestAnimationFrame(loop);
+      }
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      const r = canvasEl.getBoundingClientRect();
+      const inside =
+        e.clientX >= r.left &&
+        e.clientX <= r.right &&
+        e.clientY >= r.top &&
+        e.clientY <= r.bottom;
+      if (!inside) {
+        tgtStrength = 0;
+        ensureLoop();
+        return;
+      }
+      ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      if (raycaster.ray.intersectPlane(floorPlane, hit)) {
+        tgtSpot.copy(hit);
+        tgtStrength = SPOT_STRENGTH;
+        ensureLoop();
+      }
+    }
+
+    if (!prefersReduced) {
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+    }
+
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("smootherReady", setupScrollTrigger);
+      window.removeEventListener("pointermove", onPointerMove);
+      cancelAnimationFrame(rafId);
       st?.kill();
       geometry.dispose();
       material.dispose();
