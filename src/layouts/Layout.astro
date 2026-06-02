@@ -5,8 +5,9 @@ import CustomScrollbar from "../components/CustomScrollbar.svelte";
 import Loader from "../components/Loader.svelte";
 import MenuOverlay from "../components/MenuOverlay.svelte";
 import TopBar from "../components/TopBar.svelte";
-import GestureControl from "../components/GestureControl.svelte";
+// import GestureControl from "../components/GestureControl.svelte"; // tymczasowo wy\u0142\u0105czony
 import GestureGames from "../components/GestureGames.svelte";
+import GridFloor from "../components/GridFloor.svelte";
 
 interface Props {
   title?: string;
@@ -36,38 +37,20 @@ const { title = "Portfolio", lang = "pl" } = Astro.props;
     <CustomCursor client:load />
     <CustomScrollbar client:load />
 
+    <!-- GLOBAL 3D GRID FLOOR (zast\u0119puje dawne pionowe linie) -->
+    <GridFloor client:load />
+
     <!-- ScrollSmoother wymaga tej struktury -->
     <div id="smooth-wrapper">
       <div id="smooth-content">
-        <!-- GLOBAL VERTICAL LINES -->
-        <div
-          data-speed="0.88"
-          class="absolute top-0 bottom-0 left-[calc(50%-450px)] -translate-x-1/2 w-[1px] pointer-events-none z-40"
-          style="background-color: var(--color-accent); opacity: 0.5; min-height: 100%;"
-        ></div>
-        <div
-          data-speed="0.94"
-          class="absolute top-0 bottom-0 left-[calc(50%-150px)] -translate-x-1/2 w-[1px] pointer-events-none z-40"
-          style="background-color: var(--color-accent); opacity: 0.5; min-height: 100%;"
-        ></div>
-        <div
-          data-speed="1.06"
-          class="absolute top-0 bottom-0 left-[calc(50%+150px)] -translate-x-1/2 w-[1px] pointer-events-none z-40"
-          style="background-color: var(--color-accent); opacity: 0.5; min-height: 100%;"
-        ></div>
-        <div
-          data-speed="1.12"
-          class="absolute top-0 bottom-0 left-[calc(50%+450px)] -translate-x-1/2 w-[1px] pointer-events-none z-40"
-          style="background-color: var(--color-accent); opacity: 0.5; min-height: 100%;"
-        ></div>
-
         <slot />
       </div>
     </div>
 
     <TopBar client:load {lang} />
     <MenuOverlay client:load {lang} />
-    <GestureControl client:load {lang} />
+    <!-- Przycisk gest\u00f3w tymczasowo wy\u0142\u0105czony -->
+    <!-- <GestureControl client:load {lang} /> -->
     <GestureGames client:load {lang} />
 
     <script>
