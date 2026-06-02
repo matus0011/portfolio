@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
   import { CHARS } from "../utils/scramble";
 
   let {
@@ -216,6 +217,7 @@
               onComplete: () => {
                 hidden = true;
                 document.body.style.overflow = "";
+                ScrollTrigger.refresh();
               },
             });
           }
@@ -224,6 +226,7 @@
           setTimeout(() => {
             hidden = true;
             document.body.style.overflow = "";
+            ScrollTrigger.refresh();
           }, 1200);
         }
       }
